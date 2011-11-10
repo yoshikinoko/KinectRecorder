@@ -11,7 +11,7 @@ namespace VirtualKinect
         public Vector FloorClipPlane;
         public int FrameNumber;
         public Vector NormalToGravity;
-        public SkeletonFrameQuality Quality;
+        public Microsoft.Research.Kinect.Nui.SkeletonFrameQuality Quality;
         public SkeletonData[] Skeletons;
         public long TimeStamp;
         public void copy(Microsoft.Research.Kinect.Nui.SkeletonFrame data)
@@ -21,7 +21,7 @@ namespace VirtualKinect
             this.FrameNumber = data.FrameNumber;
             this.NormalToGravity = new Vector();
             this.NormalToGravity.copy(data.NormalToGravity);
-            this.Quality = (SkeletonFrameQuality)((int)data.Quality);
+            this.Quality =data.Quality;
             this.Skeletons = new SkeletonData[data.Skeletons.Length];       
             for (int i = 0 ; i < data.Skeletons.Length ;i++)
             {

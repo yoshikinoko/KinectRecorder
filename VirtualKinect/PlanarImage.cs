@@ -20,7 +20,7 @@ namespace VirtualKinect
 
             this.BytesPerPixel = src.BytesPerPixel;
             this.Height = src.Height;
-            this.Width = src.Width;
+           this.Width = src.Width;
         
         }
         public unsafe void copy(Microsoft.Research.Kinect.Nui.PlanarImage data)
@@ -49,6 +49,15 @@ namespace VirtualKinect
                 r.Height = this.Height;
                 return r;
             }
+set{
+       com(this.Bits, value.Bits);
+
+            this.BytesPerPixel = value.BytesPerPixel;
+            this.Height = value.Height;
+            this.Width = value.Width;
+     
+
+}
         }
 
 

@@ -12,16 +12,16 @@ namespace VirtualKinect
         public Vector Position;
         public SkeletonQuality Quality;
         public int TrackingID;
-        public SkeletonTrackingState TrackingState;
+        public Microsoft.Research.Kinect.Nui.SkeletonTrackingState TrackingState;
         public int UserIndex;
         public void copy(Microsoft.Research.Kinect.Nui.SkeletonData data)
         {
             this.Joints = new JointsCollection();
             this.Joints.copy(data.Joints);
             this.Position = new Vector();
-            this.Position.copy(data.Position);
+            this.Position.NUI = data.Position);
             this.TrackingID = data.TrackingID;
-            this.TrackingState = (SkeletonTrackingState)((int)data.TrackingState);
+            this.TrackingState = data.TrackingState;
             this.UserIndex = data.UserIndex;
         }
         //public Microsoft.Research.Kinect.Nui.SkeletonData NUI {

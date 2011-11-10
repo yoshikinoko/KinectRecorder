@@ -28,10 +28,8 @@ namespace VirtualKinect
                 r.Y = this.Y;
                 r.Z = this.Z;
                 return r;
-            
             }
-    
-    }
+}
 
     }
 }
