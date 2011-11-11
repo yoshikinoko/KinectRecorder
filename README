@@ -1,6 +1,4 @@
-This Project is still buggy.
-can record stream from kinect.
-how ever i cannot play recorded data.
+This Software enables to record /play stream data of kinect.
 you can see that this program can serarize(encode) the recorded data to the local file (see io.cs)
 
 SkeletalPlayer is still in developping.
