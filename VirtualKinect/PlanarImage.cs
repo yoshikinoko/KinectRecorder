@@ -28,8 +28,10 @@ namespace VirtualKinect
             }
             set
             {
-                com(this.Bits, value.Bits);
+               // com(this.Bits, value.Bits);
 
+                this.Bits = new byte[value.Bits.Length];
+                Array.Copy(value.Bits,this.Bits, value.Bits.Length);
                 this.BytesPerPixel = value.BytesPerPixel;
                 this.Height = value.Height;
                 this.Width = value.Width;

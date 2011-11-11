@@ -44,6 +44,7 @@ namespace SkeletalViewer
             dispatcherTimer.Tick += new EventHandler(dispatcherTimer_Tick);
 
         }
+        private bool reachEndOfSequence;
         DispatcherTimer dispatcherTimer;
         Microsoft.Research.Kinect.Nui.Runtime nui;
         int totalFrames = 0;
@@ -101,8 +102,8 @@ namespace SkeletalViewer
             }
             catch (InvalidOperationException)
             {
-                System.Windows.MessageBox.Show("Runtime initialization failed. Please make sure Kinect device is plugged in.");
-                return;
+               // System.Windows.MessageBox.Show("Runtime initialization failed. Please make sure Kinect device is plugged in.");
+              //  return;
             }
 
 
@@ -190,13 +191,13 @@ namespace SkeletalViewer
             //recorder.addDepthFrameEvent(e);
             Console.WriteLine("nui_DepthFrameReady called");
             Console.WriteLine("timestamp " + e.ImageFrame.Timestamp);
-            //VirtualKinect.PlanarImage Image = e.ImageFrame.Image;
-            //byte[] convertedDepthFrame = convertDepthFrame(Image.Bits);
+            VirtualKinect.PlanarImage Image = e.ImageFrame.Image;
+            byte[] convertedDepthFrame = convertDepthFrame(Image.Bits);
 
-            //depth.Source = BitmapSource.Create(
-            //    Image.Width, Image.Height, 96, 96, PixelFormats.Bgr32, null, convertedDepthFrame, Image.Width * 4);
+            depth.Source = BitmapSource.Create(
+                Image.Width, Image.Height, 96, 96, PixelFormats.Bgr32, null, convertedDepthFrame, Image.Width * 4);
 
-            //++totalFrames;
+           // ++totalFrames;
 
             //DateTime cur = DateTime.Now;
             //if (cur.Subtract(lastTime) > TimeSpan.FromSeconds(1))
@@ -297,11 +298,11 @@ namespace SkeletalViewer
             Console.WriteLine("timestamp " + e.ImageFrame.Timestamp);
 
             // 32-bit per pixel, RGBA image
-            //  Microsoft.Research.Kinect.Nui.PlanarImage Image = e.ImageFrame.Image.NUI;
-            //PlanarImage Image = e.ImageFrame.Image;
+        //    Microsoft.Research.Kinect.Nui.PlanarImage Image = e.ImageFrame.Image.NUI;
+            VirtualKinect.PlanarImage Image = e.ImageFrame.Image;
 
-            //video.Source = BitmapSource.Create(
-            //    Image.Width, Image.Height, 96, 96, PixelFormats.Bgr32, null, Image.Bits, Image.Width * Image.BytesPerPixel);
+            video.Source = BitmapSource.Create(
+                Image.Width, Image.Height, 96, 96, PixelFormats.Bgr32, null, Image.Bits, Image.Width * Image.BytesPerPixel);
 
         }
 
@@ -332,9 +333,12 @@ namespace SkeletalViewer
         {
             if (!player.fileLoaded)
                 return;
-            player.stepPlay();
-        
-            startSequencePlayingTimer();
+            if (reachEndOfSequence)
+                player.resetPlaying();
+            if (!playingSequenceNow)
+                startSequencePlayingTimer();
+            else
+                stopSequencePlayingTimer();
         }
 
         private void startSequencePlayingTimer()
@@ -342,9 +346,10 @@ namespace SkeletalViewer
             if (!playingSequenceNow)
                 player.resetPlaying();
 
+            stopwatch.Reset();
             stopwatch.Start();
             dispatcherTimer.Start();
-            Button_Status.Content = "Playing";
+            Button_Status.Content = "Stop";
             playingSequenceNow = true;
         }
         private void stopSequencePlayingTimer()
@@ -352,9 +357,9 @@ namespace SkeletalViewer
 
             dispatcherTimer.Stop();
             stopwatch.Stop();
-            Button_Status.Content = "Stop";
+            Button_Status.Content = "Play";
             playingSequenceNow = false;
-
+          
         }
 
         private bool loadContents()

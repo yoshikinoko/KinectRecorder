@@ -7,11 +7,6 @@ namespace VirtualKinect
 {
     public sealed class SkeletonFrameReadyEventArgs : EventArgs
     {
-       // public SkeletonFrameReadyEventArgs();
-
         public SkeletonFrame SkeletonFrame { get; set; }
-
-
-
     }
 }
