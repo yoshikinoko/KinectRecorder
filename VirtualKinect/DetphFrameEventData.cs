@@ -15,7 +15,7 @@ namespace VirtualKinect
         public DepthFrameEventData(Microsoft.Research.Kinect.Nui.ImageFrameReadyEventArgs e, long time)
         {
             this.imageFrame = new ImageFrame();
-            this.imageFrame.copy(e.ImageFrame);
+            this.imageFrame.NUI = e.ImageFrame;
             this.time = time;
         }
     }

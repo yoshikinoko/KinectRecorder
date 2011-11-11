@@ -10,33 +10,23 @@ namespace VirtualKinect
     {
         public JointsCollection Joints;
         public Vector Position;
-        public SkeletonQuality Quality;
+        public Microsoft.Research.Kinect.Nui.SkeletonQuality Quality;
         public int TrackingID;
         public Microsoft.Research.Kinect.Nui.SkeletonTrackingState TrackingState;
         public int UserIndex;
-        public void copy(Microsoft.Research.Kinect.Nui.SkeletonData data)
+
+        public Microsoft.Research.Kinect.Nui.SkeletonData NUI
         {
-            this.Joints = new JointsCollection();
-            this.Joints.copy(data.Joints);
-            this.Position = new Vector();
-            this.Position.NUI = data.Position);
-            this.TrackingID = data.TrackingID;
-            this.TrackingState = data.TrackingState;
-            this.UserIndex = data.UserIndex;
+            set
+            {
+                this.Joints = new JointsCollection();
+                this.Joints.NUI = value.Joints;
+                this.Position = new Vector();
+                this.Position.NUI = value.Position;
+                this.TrackingID = value.TrackingID;
+                this.TrackingState = value.TrackingState;
+                this.UserIndex = value.UserIndex;
+            }
         }
-        //public Microsoft.Research.Kinect.Nui.SkeletonData NUI {
-        //    get {
-
-        //        Microsoft.Research.Kinect.Nui.SkeletonData r = new Microsoft.Research.Kinect.Nui.SkeletonData();
-        //        r.Joints = new Microsoft.Research.Kinect.Nui.Joint[Microsoft.Research.Kinect.Nui.JointID.Count]; 
-        //        foreach (Joint j in r.Joints)
-        //        {
-
-
-        //        }
-        //    }
-        
-        //}
-    
     }
 }

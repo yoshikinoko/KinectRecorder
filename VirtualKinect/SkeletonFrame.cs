@@ -14,33 +14,26 @@ namespace VirtualKinect
         public Microsoft.Research.Kinect.Nui.SkeletonFrameQuality Quality;
         public SkeletonData[] Skeletons;
         public long TimeStamp;
-        public void copy(Microsoft.Research.Kinect.Nui.SkeletonFrame data)
+        public Microsoft.Research.Kinect.Nui.SkeletonFrame NUI
         {
-            this.FloorClipPlane = new Vector();
-            this.FloorClipPlane.copy(data.FloorClipPlane);
-            this.FrameNumber = data.FrameNumber;
-            this.NormalToGravity = new Vector();
-            this.NormalToGravity.copy(data.NormalToGravity);
-            this.Quality =data.Quality;
-            this.Skeletons = new SkeletonData[data.Skeletons.Length];       
-            for (int i = 0 ; i < data.Skeletons.Length ;i++)
+
+            set
             {
-                this.Skeletons[i] = new SkeletonData();
-                this.Skeletons[i].copy(data.Skeletons[i]);
+                this.FloorClipPlane = new Vector();
+                this.FloorClipPlane.NUI = value.FloorClipPlane;
+                this.FrameNumber = value.FrameNumber;
+                this.NormalToGravity = new Vector();
+                this.NormalToGravity.NUI = value.NormalToGravity;
+                this.Quality = value.Quality;
+                this.Skeletons = new SkeletonData[value.Skeletons.Length];
+
+                for (int i = 0; i < value.Skeletons.Length; i++)
+                {
+                    this.Skeletons[i] = new SkeletonData();
+                    this.Skeletons[i].NUI = value.Skeletons[i];
+                }
+                this.TimeStamp = value.TimeStamp;
             }
-            this.TimeStamp = data.TimeStamp;
         }
-        //public Microsoft.Research.Kinect.Nui.SkeletonFrame NUI {
-        //    get {
-
-        //        Microsoft.Research.Kinect.Nui.SkeletonFrame r = new Microsoft.Research.Kinect.Nui.SkeletonFrame();
-        //        r.FloorClipPlane = this.FloorClipPlane.NUI;
-        //        r.FrameNumber = this.FrameNumber;
-        //        r.NormalToGravity = this.NormalToGravity.NUI;
-        //        r.Quality = (Microsoft.Research.Kinect.Nui.SkeletonFrameQuality)((int)this.Quality);
-        //        r.Skeletons = 
-        //    }
-        //}
-
     }
 }

@@ -10,19 +10,25 @@ namespace VirtualKinect
     {
         private Joint[] _joints;
 
-        public void copy(Microsoft.Research.Kinect.Nui.JointsCollection data)
+
+        public Microsoft.Research.Kinect.Nui.JointsCollection NUI
         {
-            _joints = new Joint[(int)JointID.Count];
-            foreach (Microsoft.Research.Kinect.Nui.Joint i in data)
+            set
             {
-                _joints[(int)(i.ID)] = new Joint();
-                _joints[(int)(i.ID)].copy(i);
+
+                _joints = new Joint[value.Count];
+
+                foreach (Microsoft.Research.Kinect.Nui.Joint joint in value)
+                {
+                    _joints[(int)joint.ID] = new Joint();
+                    _joints[(int)joint.ID].NUI = joint;
+                }
             }
         }
 
         public int Count { get { return _joints.Length; } }
 
-        public Joint this[JointID i]
+        public Joint this[Microsoft.Research.Kinect.Nui.JointID i]
         {
             get
             {

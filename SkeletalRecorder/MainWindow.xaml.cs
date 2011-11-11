@@ -177,7 +177,7 @@ namespace SkeletalViewer
         void nui_DepthFrameReady(object sender, ImageFrameReadyEventArgs e)
         {
             //For VirtualKinect Recording
-            recorder.addDepthFrameEvent(e);
+          //  recorder.addDepthFrameEvent(e);
 
             PlanarImage Image = e.ImageFrame.Image;
             byte[] convertedDepthFrame = convertDepthFrame(Image.Bits);
@@ -276,7 +276,7 @@ namespace SkeletalViewer
         void nui_ColorFrameReady(object sender, ImageFrameReadyEventArgs e)
         {
             //For VirtualKinect Recording
-            recorder.addImageFrameEvent(e);
+           // recorder.addImageFrameEvent(e);
 
             // 32-bit per pixel, RGBA image
             PlanarImage Image = e.ImageFrame.Image;

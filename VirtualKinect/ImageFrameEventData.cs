@@ -16,7 +16,7 @@ namespace VirtualKinect
             //  this.data = e;
             // this.imageFrame = e.ImageFrame;
             this.imageFrame = new ImageFrame();
-            this.imageFrame.copy(e.ImageFrame);
+            this.imageFrame.NUI = e.ImageFrame;
             this.time = time;
         }
     }

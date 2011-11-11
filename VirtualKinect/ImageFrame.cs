@@ -15,29 +15,6 @@ namespace VirtualKinect
         public Microsoft.Research.Kinect.Nui.ImageType Type;
         public ImageViewArea ViewArea;
 
-        public void copy(ImageFrame data)
-        {
-            this.FrameNumber = data.FrameNumber;
-            this.Image = new PlanarImage();
-            this.Image.copy(data.Image);
-            this.Resolution = data.Resolution;
-            this.Timestamp = data.Timestamp;
-            this.Type = (ImageType)((int)data.Type);
-            this.ViewArea = data.ViewArea;
-
-        }
-        public void copy(Microsoft.Research.Kinect.Nui.ImageFrame data)
-        {
-            this.FrameNumber = data.FrameNumber;
-            this.Image = new PlanarImage();
-            this.Image.copy(data.Image);
-            this.Resolution = data.Resolution;
-            this.Timestamp = data.Timestamp;
-            this.Type = (ImageType)((int)data.Type);
-            this.ViewArea = new ImageViewArea();
-            this.ViewArea.copy(data.ViewArea);
-
-        }
         public Microsoft.Research.Kinect.Nui.ImageFrame NUI
         {
             get
@@ -54,6 +31,17 @@ namespace VirtualKinect
 
             }
 
+            set {
+
+                this.Image = new PlanarImage();
+                this.Image.NUI = value.Image;
+                this.FrameNumber = value.FrameNumber;
+                this.Resolution = value.Resolution;
+                this.Timestamp = value.Timestamp;
+                this.Type = value.Type;
+                this.ViewArea = new ImageViewArea();
+                this.ViewArea.NUI = value.ViewArea;
+            }
 
         }
     }

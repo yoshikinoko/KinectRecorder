@@ -2,7 +2,6 @@
 using System.Collections;
 using System.Diagnostics;
 using System.Threading;
-//using Microsoft.Research.Kinect.Nui;
 
 namespace VirtualKinect
 {
@@ -11,112 +10,85 @@ namespace VirtualKinect
         private KinectEventData ked;
         private EventTiming[] timeline;
         private int eventIndex;
-        private Stopwatch stopwatch;
-        private int count = 0;
+        private bool _fileLoaded = false;
+        public bool fileLoaded
+        {
+            get { return _fileLoaded; }
+            set { }
+        }
         public void load(String fileName)
         {
             ked = IO.load(fileName);
             timeline = sortByTimeline(ked);
-
+            _fileLoaded = true;
         }
         private readonly object lockObject = new object();
 
-	
 
-        //public Runtime();
-        //public Runtime(int index);
-        public void start()
+        public bool stepPlay()
         {
-            this.stopwatch = new Stopwatch();
+          
+                if (eventIndex >= timeline.Length)
+                    return false;
 
-            resetPlaying();
-            //System.Threading.Thread.Sleep(5000);
-          //  play();
-            TimerCallback timerDelegate = new TimerCallback(play);
+                EventTiming et = timeline[eventIndex];
 
-//            TimerCallback timerDelegate = new TimerCallback(playTest);
-           Timer timer = new Timer(timerDelegate, null, 0, 10);
-            //Console.ReadLine(); 
+                switch (et.type)
+                {
+                    case EventTiming.EventType.DepthFrameEvent:
+                        executeDepthFrameEvent(et.index);
+                        break;
+                    case EventTiming.EventType.ImageFrameEvent:
+                        executeImageEvent(et.index);
+                        break;
+                    case EventTiming.EventType.SkeletonFrameEvent:
+                        skeletonFrameEvent(et.index);
+
+                        break;
+                }
+
+                eventIndex++;
+                return true;
             
         }
 
-        
-        private void resetPlaying()
+        public void resetPlaying()
         {
-            count = 0;
             eventIndex = 0;
-            stopwatch.Reset();
-            stopwatch.Start();
+        }
 
-        }
-        public void playTest(object o)
+      
+        public long duration
         {
-            long t = stopwatch.ElapsedMilliseconds;
-            Console.WriteLine("playtest:" + t);
-            count++;
+            get
+            {
+                if (fileLoaded)
+                    return ked.duration;
+                else
+                    return 0;
+            }
         }
-        public void play(object o)
+
+        public void executeEvents(long currentTime)
         {
             lock (lockObject)
             {
-                Console.WriteLine("called Play :" + eventIndex);
-                long currentTime = stopwatch.ElapsedMilliseconds;
-                if (ked.duration < currentTime)
-                {
-                    resetPlaying();
+                if (eventIndex >= timeline.Length)
                     return;
-                }
-                if (eventIndex <timeline.Length)
+
+                if (currentTime > duration)
+                    return;
+                while (timeline[eventIndex].time < currentTime)
                 {
-                    executeEvents(currentTime);
+                   if(!stepPlay())
+                       break;
+                   if (eventIndex >= timeline.Length)
+                       break;     
                 }
             }
 
         }
-
-
-        private void executeEvents(long currentTime)
-        {
-          
-                
-                while (timeline[eventIndex].time < currentTime)
-                {
-                    long t = stopwatch.ElapsedMilliseconds;
-                    Console.WriteLine("ExecuteEvent:" + t + ":" + eventIndex);
-
-                    EventTiming et = timeline[eventIndex];
-
-                    switch (et.type)
-                    {
-                        case EventTiming.EventType.DepthFrameEvent:
-                            Console.WriteLine("DIE");
-                            executeDepthFrameEvent(et.index);
-                            break;
-                        case EventTiming.EventType.ImageFrameEvent:
-                            Console.WriteLine("IIE");
-
-                            executeImageEvent(et.index);
-                            break;
-                        case EventTiming.EventType.SkeletonFrameEvent:
-                            Console.WriteLine("SIE");
-                            skeletonFrameEvent(et.index);
-
-                            break;
-                    }
-
-                    eventIndex++;
-
-                }
-            
-        }
-
-
-
-        //public ImageStream DepthStream { get; }
         public int InstanceIndex = 0;
-        //public Camera NuiCamera { get; }
-        //public SkeletonEngine SkeletonEngine { get; }
-        //public ImageStream VideoStream { get; }
 
         public event EventHandler<ImageFrameReadyEventArgs> DepthFrameReady;
         //public event EventHandler DepthFrameReady;
@@ -140,7 +112,7 @@ namespace VirtualKinect
         {
             ImageFrameReadyEventArgs e = new ImageFrameReadyEventArgs();
             ImageFrame ei = new ImageFrame();
-            ei.copy(ked.imageFrameEvents[i].imageFrame);
+            ei = ked.imageFrameEvents[i].imageFrame;
             e.ImageFrame = ei;
             VideoFrameReady(this, e);
         }
@@ -175,21 +147,17 @@ namespace VirtualKinect
                 {
                     case EventTiming.EventType.SkeletonFrameEvent:
                         result[timeIndex] = new EventTiming(nextEvent, ked.skeletonFrameEvents[si].time, si);
-                        Console.WriteLine(timeIndex + " :SI " + si + ":" +ked.skeletonFrameEvents[si].time);
                         si++;
                         break;
                     case EventTiming.EventType.ImageFrameEvent:
                         result[timeIndex] = new EventTiming(nextEvent, ked.imageFrameEvents[ii].time, ii);
-                        Console.WriteLine(timeIndex + " :II " + ii + ":" + ked.imageFrameEvents[ii].time);
                         ii++;
                         break;
                     case EventTiming.EventType.DepthFrameEvent:
                         result[timeIndex] = new EventTiming(nextEvent, ked.depthFrameEvents[di].time, di);
-                        Console.WriteLine(timeIndex + " :DI " + di + ":" + ked.depthFrameEvents[di].time);
                         di++;
                         break;
                     default:
-                        Console.WriteLine("TYPE ERROR");
                         break;
                 }
                 timeIndex++;

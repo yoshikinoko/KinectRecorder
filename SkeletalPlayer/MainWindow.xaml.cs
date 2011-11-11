@@ -22,10 +22,11 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
-//using Microsoft.Research.Kinect.Nui;
+using Microsoft.Research.Kinect.Nui;
 using VirtualKinect;
 using System.Windows.Forms;
-
+using System.Windows.Threading;
+using System.Diagnostics;
 
 namespace SkeletalViewer
 {
@@ -37,18 +38,25 @@ namespace SkeletalViewer
         public MainWindow()
         {
             InitializeComponent();
-        }
+            stopwatch = new Stopwatch();
+            dispatcherTimer = new DispatcherTimer(DispatcherPriority.Normal);
+            dispatcherTimer.Interval = new TimeSpan(0, 0, 0, 0, timerSpanInMilliseconds);
+            dispatcherTimer.Tick += new EventHandler(dispatcherTimer_Tick);
 
+        }
+        DispatcherTimer dispatcherTimer;
         Microsoft.Research.Kinect.Nui.Runtime nui;
         int totalFrames = 0;
         int lastFrames = 0;
         DateTime lastTime = DateTime.MaxValue;
+        private int timerSpanInMilliseconds = 100;
+        private bool playingSequenceNow;
 
         //For Virtual Kinect Recording and playing
         //  VirtualKinect.Recorder recorder;
         VirtualKinect.Player player;
 
-
+        Stopwatch stopwatch;
 
         // We want to control how depth data gets converted into false-color data
         // for more intuitive visualization, so we keep 32-bit color frame buffer versions of
@@ -59,27 +67,27 @@ namespace SkeletalViewer
         byte[] depthFrame32 = new byte[320 * 240 * 4];
 
 
-        Dictionary<JointID, Brush> jointColors = new Dictionary<JointID, Brush>() { 
-            {JointID.HipCenter, new SolidColorBrush(Color.FromRgb(169, 176, 155))},
-            {JointID.Spine, new SolidColorBrush(Color.FromRgb(169, 176, 155))},
-            {JointID.ShoulderCenter, new SolidColorBrush(Color.FromRgb(168, 230, 29))},
-            {JointID.Head, new SolidColorBrush(Color.FromRgb(200, 0,   0))},
-            {JointID.ShoulderLeft, new SolidColorBrush(Color.FromRgb(79,  84,  33))},
-            {JointID.ElbowLeft, new SolidColorBrush(Color.FromRgb(84,  33,  42))},
-            {JointID.WristLeft, new SolidColorBrush(Color.FromRgb(255, 126, 0))},
-            {JointID.HandLeft, new SolidColorBrush(Color.FromRgb(215,  86, 0))},
-            {JointID.ShoulderRight, new SolidColorBrush(Color.FromRgb(33,  79,  84))},
-            {JointID.ElbowRight, new SolidColorBrush(Color.FromRgb(33,  33,  84))},
-            {JointID.WristRight, new SolidColorBrush(Color.FromRgb(77,  109, 243))},
-            {JointID.HandRight, new SolidColorBrush(Color.FromRgb(37,   69, 243))},
-            {JointID.HipLeft, new SolidColorBrush(Color.FromRgb(77,  109, 243))},
-            {JointID.KneeLeft, new SolidColorBrush(Color.FromRgb(69,  33,  84))},
-            {JointID.AnkleLeft, new SolidColorBrush(Color.FromRgb(229, 170, 122))},
-            {JointID.FootLeft, new SolidColorBrush(Color.FromRgb(255, 126, 0))},
-            {JointID.HipRight, new SolidColorBrush(Color.FromRgb(181, 165, 213))},
-            {JointID.KneeRight, new SolidColorBrush(Color.FromRgb(71, 222,  76))},
-            {JointID.AnkleRight, new SolidColorBrush(Color.FromRgb(245, 228, 156))},
-            {JointID.FootRight, new SolidColorBrush(Color.FromRgb(77,  109, 243))}
+        Dictionary<Microsoft.Research.Kinect.Nui.JointID, Brush> jointColors = new Dictionary<Microsoft.Research.Kinect.Nui.JointID, Brush>() { 
+            {Microsoft.Research.Kinect.Nui.JointID.HipCenter, new SolidColorBrush(Color.FromRgb(169, 176, 155))},
+            {Microsoft.Research.Kinect.Nui.JointID.Spine, new SolidColorBrush(Color.FromRgb(169, 176, 155))},
+            {Microsoft.Research.Kinect.Nui.JointID.ShoulderCenter, new SolidColorBrush(Color.FromRgb(168, 230, 29))},
+            {Microsoft.Research.Kinect.Nui.JointID.Head, new SolidColorBrush(Color.FromRgb(200, 0,   0))},
+            {Microsoft.Research.Kinect.Nui.JointID.ShoulderLeft, new SolidColorBrush(Color.FromRgb(79,  84,  33))},
+            {Microsoft.Research.Kinect.Nui.JointID.ElbowLeft, new SolidColorBrush(Color.FromRgb(84,  33,  42))},
+            {Microsoft.Research.Kinect.Nui.JointID.WristLeft, new SolidColorBrush(Color.FromRgb(255, 126, 0))},
+            {Microsoft.Research.Kinect.Nui.JointID.HandLeft, new SolidColorBrush(Color.FromRgb(215,  86, 0))},
+            {Microsoft.Research.Kinect.Nui.JointID.ShoulderRight, new SolidColorBrush(Color.FromRgb(33,  79,  84))},
+            {Microsoft.Research.Kinect.Nui.JointID.ElbowRight, new SolidColorBrush(Color.FromRgb(33,  33,  84))},
+            {Microsoft.Research.Kinect.Nui.JointID.WristRight, new SolidColorBrush(Color.FromRgb(77,  109, 243))},
+            {Microsoft.Research.Kinect.Nui.JointID.HandRight, new SolidColorBrush(Color.FromRgb(37,   69, 243))},
+            {Microsoft.Research.Kinect.Nui.JointID.HipLeft, new SolidColorBrush(Color.FromRgb(77,  109, 243))},
+            {Microsoft.Research.Kinect.Nui.JointID.KneeLeft, new SolidColorBrush(Color.FromRgb(69,  33,  84))},
+            {Microsoft.Research.Kinect.Nui.JointID.AnkleLeft, new SolidColorBrush(Color.FromRgb(229, 170, 122))},
+            {Microsoft.Research.Kinect.Nui.JointID.FootLeft, new SolidColorBrush(Color.FromRgb(255, 126, 0))},
+            {Microsoft.Research.Kinect.Nui.JointID.HipRight, new SolidColorBrush(Color.FromRgb(181, 165, 213))},
+            {Microsoft.Research.Kinect.Nui.JointID.KneeRight, new SolidColorBrush(Color.FromRgb(71, 222,  76))},
+            {Microsoft.Research.Kinect.Nui.JointID.AnkleRight, new SolidColorBrush(Color.FromRgb(245, 228, 156))},
+            {Microsoft.Research.Kinect.Nui.JointID.FootRight, new SolidColorBrush(Color.FromRgb(77,  109, 243))}
         };
 
         private void Window_Loaded(object sender, EventArgs e)
@@ -88,7 +96,8 @@ namespace SkeletalViewer
             player = new VirtualKinect.Player();
             try
             {
-                //  player.Initialize(RuntimeOptions.UseDepthAndPlayerIndex | RuntimeOptions.UseSkeletalTracking | RuntimeOptions.UseColor);
+
+                nui.Initialize(RuntimeOptions.UseDepthAndPlayerIndex | RuntimeOptions.UseSkeletalTracking | RuntimeOptions.UseColor);
             }
             catch (InvalidOperationException)
             {
@@ -199,10 +208,11 @@ namespace SkeletalViewer
             //}
         }
 
-        private Point getDisplayPosition(Joint joint)
+        private Point getDisplayPosition(VirtualKinect.Joint joint)
         {
             float depthX, depthY;
-            nui.SkeletonEngine.SkeletonToDepthImage(joint.NUI.Position, out depthX, out depthY);
+            Microsoft.Research.Kinect.Nui.Vector Position = joint.Position.NUI;
+            nui.SkeletonEngine.SkeletonToDepthImage(Position, out depthX, out depthY);
             depthX = depthX * 320; //convert to 320, 240 space
             depthY = depthY * 240; //convert to 320, 240 space
             int colorX, colorY;
@@ -214,7 +224,7 @@ namespace SkeletalViewer
             return new Point((int)(skeleton.Width * colorX / 640.0), (int)(skeleton.Height * colorY / 480));
         }
 
-        Polyline getBodySegment(JointsCollection joints, Brush brush, params JointID[] ids)
+        Polyline getBodySegment(VirtualKinect.JointsCollection joints, Brush brush, params Microsoft.Research.Kinect.Nui.JointID[] ids)
         {
             PointCollection points = new PointCollection(ids.Length);
             for (int i = 0; i < ids.Length; ++i)
@@ -236,44 +246,47 @@ namespace SkeletalViewer
             Console.WriteLine("nui_SkeletonFrameReady called");
             Console.WriteLine("timestamp " + e.SkeletonFrame.TimeStamp);
 
-            //SkeletonFrame skeletonFrame = e.SkeletonFrame;
-            //   int iSkeleton = 0;
-            //   Brush[] brushes = new Brush[6];
-            //   brushes[0] = new SolidColorBrush(Color.FromRgb(255, 0, 0));
-            //   brushes[1] = new SolidColorBrush(Color.FromRgb(0, 255, 0));
-            //   brushes[2] = new SolidColorBrush(Color.FromRgb(64, 255, 255));
-            //   brushes[3] = new SolidColorBrush(Color.FromRgb(255, 255, 64));
-            //   brushes[4] = new SolidColorBrush(Color.FromRgb(255, 64, 255));
-            //   brushes[5] = new SolidColorBrush(Color.FromRgb(128, 128, 255));
+            VirtualKinect.SkeletonFrame skeletonFrame = e.SkeletonFrame;
+            int iSkeleton = 0;
+            Brush[] brushes = new Brush[6];
+            brushes[0] = new SolidColorBrush(Color.FromRgb(255, 0, 0));
+            brushes[1] = new SolidColorBrush(Color.FromRgb(0, 255, 0));
+            brushes[2] = new SolidColorBrush(Color.FromRgb(64, 255, 255));
+            brushes[3] = new SolidColorBrush(Color.FromRgb(255, 255, 64));
+            brushes[4] = new SolidColorBrush(Color.FromRgb(255, 64, 255));
+            brushes[5] = new SolidColorBrush(Color.FromRgb(128, 128, 255));
 
-            //   skeleton.Children.Clear();
-            //   foreach (SkeletonData data in skeletonFrame.Skeletons)
-            //   {
-            //       if (SkeletonTrackingState.Tracked == data.TrackingState)
-            //       {
-            //           // Draw bones
-            //           Brush brush = brushes[iSkeleton % brushes.Length];
-            //           skeleton.Children.Add(getBodySegment(data.Joints, brush, JointID.HipCenter, JointID.Spine, JointID.ShoulderCenter, JointID.Head));
-            //           skeleton.Children.Add(getBodySegment(data.Joints, brush, JointID.ShoulderCenter, JointID.ShoulderLeft, JointID.ElbowLeft, JointID.WristLeft, JointID.HandLeft));
-            //           skeleton.Children.Add(getBodySegment(data.Joints, brush, JointID.ShoulderCenter, JointID.ShoulderRight, JointID.ElbowRight, JointID.WristRight, JointID.HandRight));
-            //           skeleton.Children.Add(getBodySegment(data.Joints, brush, JointID.HipCenter, JointID.HipLeft, JointID.KneeLeft, JointID.AnkleLeft, JointID.FootLeft));
-            //           skeleton.Children.Add(getBodySegment(data.Joints, brush, JointID.HipCenter, JointID.HipRight, JointID.KneeRight, JointID.AnkleRight, JointID.FootRight));
+            skeleton.Children.Clear();
 
-            //           // Draw joints
-            //           foreach (Joint joint in data.Joints)
-            //           {
-            //               Point jointPos = getDisplayPosition(joint);
-            //               Line jointLine = new Line();
-            //               jointLine.X1 = jointPos.X - 3;
-            //               jointLine.X2 = jointLine.X1 + 6;
-            //               jointLine.Y1 = jointLine.Y2 = jointPos.Y;
-            //               jointLine.Stroke = jointColors[joint.ID];
-            //               jointLine.StrokeThickness = 6;
-            //               skeleton.Children.Add(jointLine);
-            //           }
-            //       }
-            //       iSkeleton++;
-            //   } // for each skeleton
+
+
+            foreach (VirtualKinect.SkeletonData data in skeletonFrame.Skeletons)
+            {
+                if (SkeletonTrackingState.Tracked == data.TrackingState)
+                {
+                    // Draw bones
+                    Brush brush = brushes[iSkeleton % brushes.Length];
+                    skeleton.Children.Add(getBodySegment(data.Joints, brush, JointID.HipCenter, JointID.Spine, JointID.ShoulderCenter, JointID.Head));
+                    skeleton.Children.Add(getBodySegment(data.Joints, brush, JointID.ShoulderCenter, JointID.ShoulderLeft, JointID.ElbowLeft, JointID.WristLeft, JointID.HandLeft));
+                    skeleton.Children.Add(getBodySegment(data.Joints, brush, JointID.ShoulderCenter, JointID.ShoulderRight, JointID.ElbowRight, JointID.WristRight, JointID.HandRight));
+                    skeleton.Children.Add(getBodySegment(data.Joints, brush, JointID.HipCenter, JointID.HipLeft, JointID.KneeLeft, JointID.AnkleLeft, JointID.FootLeft));
+                    skeleton.Children.Add(getBodySegment(data.Joints, brush, JointID.HipCenter, JointID.HipRight, JointID.KneeRight, JointID.AnkleRight, JointID.FootRight));
+
+                    // Draw joints
+                    foreach (VirtualKinect.Joint joint in data.Joints)
+                    {
+                        Point jointPos = getDisplayPosition(joint);
+                        Line jointLine = new Line();
+                        jointLine.X1 = jointPos.X - 3;
+                        jointLine.X2 = jointLine.X1 + 6;
+                        jointLine.Y1 = jointLine.Y2 = jointPos.Y;
+                        jointLine.Stroke = jointColors[joint.ID];
+                        jointLine.StrokeThickness = 6;
+                        skeleton.Children.Add(jointLine);
+                    }
+                }
+                iSkeleton++;
+            } // for each skeleton
         }
 
         void nui_ColorFrameReady(object sender, VirtualKinect.ImageFrameReadyEventArgs e)
@@ -285,13 +298,14 @@ namespace SkeletalViewer
 
             // 32-bit per pixel, RGBA image
             //  Microsoft.Research.Kinect.Nui.PlanarImage Image = e.ImageFrame.Image.NUI;
-            PlanarImage Image = e.ImageFrame.Image;
+            //PlanarImage Image = e.ImageFrame.Image;
 
-            video.Source = BitmapSource.Create(
-                Image.Width, Image.Height, 96, 96, PixelFormats.Bgr32, null, Image.Bits, Image.Width * Image.BytesPerPixel);
-            Console.WriteLine("updated Imagess YFHDSFDJFLKJDSF:LJFDSLKJSJ:GJDF");
+            //video.Source = BitmapSource.Create(
+            //    Image.Width, Image.Height, 96, 96, PixelFormats.Bgr32, null, Image.Bits, Image.Width * Image.BytesPerPixel);
 
         }
+
+
 
         private void Window_Closed(object sender, EventArgs e)
         {
@@ -311,19 +325,73 @@ namespace SkeletalViewer
             {
                 playingFileName.Text = ofd.FileName;
             }
+            loadContents();
         }
 
         private void Button_play_Click(object sender, RoutedEventArgs e)
         {
-            player.load(playingFileName.Text);
-            player.start();
-            playingStatus.Text = "Playing";
+            if (!player.fileLoaded)
+                return;
+            player.stepPlay();
+        
+            startSequencePlayingTimer();
         }
 
-        private void playingFileName_TextChanged(object sender, TextChangedEventArgs e)
+        private void startSequencePlayingTimer()
+        {
+            if (!playingSequenceNow)
+                player.resetPlaying();
+
+            stopwatch.Start();
+            dispatcherTimer.Start();
+            Button_Status.Content = "Playing";
+            playingSequenceNow = true;
+        }
+        private void stopSequencePlayingTimer()
         {
 
+            dispatcherTimer.Stop();
+            stopwatch.Stop();
+            Button_Status.Content = "Stop";
+            playingSequenceNow = false;
+
         }
 
+        private bool loadContents()
+        {
+            String fileName = playingFileName.Text;
+            if (!System.IO.File.Exists(fileName))
+            {
+                playingStatus.Text = "File does not exist";
+
+                return false;
+            }
+            player.load(playingFileName.Text);
+            playingStatus.Text = fileName;
+            TimeSpan ts = new TimeSpan(0,0,0,0,(int)player.duration);
+            TimeSpan tsShow = new TimeSpan(ts.Hours,ts.Minutes,ts.Seconds);
+            SeaquenceDurationTime.Content = ts.ToString();
+            return true;
+
+        }
+        void dispatcherTimer_Tick(object sender, EventArgs e)
+        {
+           SeaquenceTime.Content = DateTime.Now.ToLongTimeString();
+           long currentPlayingSequenceTime = stopwatch.ElapsedMilliseconds;
+          
+            if (player.duration < currentPlayingSequenceTime)
+               stopSequencePlayingTimer();
+      
+            player.executeEvents(currentPlayingSequenceTime);
+            TimeSpan span = new TimeSpan(0, 0, 0, 0, (int)currentPlayingSequenceTime);
+            TimeSpan tsToShow = new TimeSpan(span.Hours, span.Minutes, span.Seconds);
+            SeaquenceTime.Content = tsToShow.ToString(); 
+
+        }
+
+        private void SeaquencePosition_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+            
+        }
     }
 }

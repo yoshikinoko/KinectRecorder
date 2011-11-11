@@ -23,6 +23,8 @@ namespace VirtualKinect
 
         public void startRecording()
         {
+            if (recording)
+                return;
 
             depthFrameEvents = new ArrayList();
             imageFrameEvents = new ArrayList();
@@ -34,8 +36,11 @@ namespace VirtualKinect
         }
         public void stopRecording()
         {
+            if (!recording)
+                return;
+
             recording = false;
-           this.duration = stopwatch.ElapsedMilliseconds;
+            this.duration = stopwatch.ElapsedMilliseconds;
             stopwatch.Stop();
             saveData();
         }
@@ -50,7 +55,7 @@ namespace VirtualKinect
             DepthFrameEventData[] dfe = (DepthFrameEventData[])depthFrameEvents.ToArray(typeof(DepthFrameEventData));
             ImageFrameEventData[] ife = (ImageFrameEventData[])imageFrameEvents.ToArray(typeof(ImageFrameEventData));
             SkeletonFrameEventData[] sfe = (SkeletonFrameEventData[])skeletonFrameEvents.ToArray(typeof(SkeletonFrameEventData));
-           
+
             KinectEventData ked = new KinectEventData();
 
             ked.set(date, this.duration, dfe, ife, sfe);
@@ -73,6 +78,15 @@ namespace VirtualKinect
         {
             if (!recording)
                 return;
+            foreach (Microsoft.Research.Kinect.Nui.SkeletonData data in e.SkeletonFrame.Skeletons)
+            {
+                if (Microsoft.Research.Kinect.Nui.SkeletonTrackingState.Tracked == data.TrackingState)
+                {
+                    Console.WriteLine("goodskeleton:" + skeletonFrameEvents.Count);
+                }
+            }
+
+
             skeletonFrameEvents.Add(new SkeletonFrameEventData(e, stopwatch.ElapsedMilliseconds));
         }
         public void addDepthFrameEvent(Microsoft.Research.Kinect.Nui.ImageFrameReadyEventArgs e)

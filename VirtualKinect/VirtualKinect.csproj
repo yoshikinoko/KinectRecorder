@@ -21,6 +21,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -40,25 +41,17 @@
   <ItemGroup>
     <Compile Include="DetphFrameEventData.cs" />
     <Compile Include="EventTiming.cs" />
-    <Compile Include="ImageDigitalZoom.cs" />
     <Compile Include="ImageFrame.cs" />
     <Compile Include="ImageFrameEventData.cs" />
     <Compile Include="ImageFrameReadyEventArgs.cs" />
-    <Compile Include="ImageResolution.cs" />
-    <Compile Include="ImageType.cs" />
     <Compile Include="ImageViewArea.cs" />
     <Compile Include="Joint.cs" />
-    <Compile Include="JointID.cs" />
     <Compile Include="JointsCollection.cs" />
-    <Compile Include="JointTrackingState.cs" />
     <Compile Include="KinectEventData.cs" />
     <Compile Include="PlanarImage.cs" />
     <Compile Include="SkeletonData.cs" />
     <Compile Include="SkeletonFrame.cs" />
-    <Compile Include="SkeletonFrameQuality.cs" />
     <Compile Include="SkeletonFrameReadyEventArgs.cs" />
-    <Compile Include="SkeletonQuality.cs" />
-    <Compile Include="SkeletonTrackingState.cs" />
     <Compile Include="Vector.cs" />
     <Compile Include="Player.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

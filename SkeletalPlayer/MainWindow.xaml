@@ -20,8 +20,12 @@
                     <TextBox FontSize="72" Name="frameRate" Margin="10" Focusable="False" BorderThickness="0" Text="0 fps" TextAlignment="Right" HorizontalAlignment="Center" VerticalAlignment="Center" Width="250"/>
                 </Viewbox>
                 <StackPanel Orientation="Horizontal">
-                    <Button Content="Play" Height="23" Name="Button_play" Width="75" Click="Button_play_Click" />
-                    <TextBlock Height="23" Name="playingStatus" Text="File Not Selected" />
+                    <Label Content="00:00:00" Height="28" Name="SeaquenceTime" Width="70" /> 
+                    <Label Content="00:00:00" Height="28" Name="SeaquenceDurationTime" Width="70" />
+                </StackPanel>
+                <StackPanel Orientation="Horizontal">
+                    <Button Content="Play" Height="23" Name="Button_Status" Width="75" Click="Button_play_Click" />
+                    <TextBlock Height="23" Width="300" Name="playingStatus" Text="File Not Loaded" />
                 </StackPanel>
                 <StackPanel Orientation="Horizontal">
                     <TextBox Height="24" Name="playingFileName" Width="300" Text="path of virtual kinect file" />
