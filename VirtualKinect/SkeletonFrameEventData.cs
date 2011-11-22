@@ -12,7 +12,7 @@ namespace VirtualKinect
     {
 
         public SkeletonFrameEventData() { }
-          [XmlAttribute]  
+        [XmlAttribute]
         public long time;
         public SkeletonFrame SkeletonFrame;
 

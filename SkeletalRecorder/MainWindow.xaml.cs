@@ -322,9 +322,6 @@ namespace SkeletalViewer
 
         private void Button_loadFile_Click(object sender, RoutedEventArgs e)
         {
-            //  VirtualKinect.KinectEventData ked;
-            //  ked = VirtualKinect.IO.load(playingFileName.Text);
-            //      Console.WriteLine("EHEEEE");
         }
 
     }

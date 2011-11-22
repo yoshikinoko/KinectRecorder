@@ -4,6 +4,8 @@ using System.Collections;
 using System.Xml;
 using System.Xml.Serialization;
 using System.IO;
+using System.Threading.Tasks;
+
 namespace VirtualKinect
 {
     [Serializable]
@@ -12,14 +14,14 @@ namespace VirtualKinect
     {
         [XmlAttribute]
         public String datafolder;
-
-
+        [XmlAttribute]
+        public const String dateFormatStyle = "yyyy-MM-dd-HH-mm-ss";
+        [XmlAttribute]
         public const String extension = ".vkd";
         [XmlAttribute]
         public DateTime date;
         [XmlAttribute]
         public long duration;
-
 
         public SkeletonFrameEventData[] skeletonFrameEvents;
 
@@ -27,23 +29,14 @@ namespace VirtualKinect
 
         public DepthFrameEventData[] depthFrameEvents;
 
-
-
         private void loadRawImageEventData(String eventRootFolder)
         {
-            for (int i = 0; i < imageFrameEvents.Length; i++)
-            {
-                imageFrameEvents[i].imageFrame.Image.loadImage(eventRootFolder);
-            }
+            Parallel.For(0, imageFrameEvents.Length, (n) => imageFrameEvents[n].imageFrame.Image.loadImage(eventRootFolder));
         }
+
         private void loadRawDepthEventData(String eventRootFolder)
         {
-
-            for (int i = 0; i < depthFrameEvents.Length; i++)
-            {
-
-                depthFrameEvents[i].imageFrame.Image.loadImage(eventRootFolder);
-            }
+            Parallel.For(0, depthFrameEvents.Length, (n) => depthFrameEvents[n].imageFrame.Image.loadImage(eventRootFolder));
         }
 
         public void loadRawEventData(String eventRootFolder)

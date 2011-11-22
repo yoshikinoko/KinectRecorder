@@ -31,7 +31,6 @@ namespace VirtualKinect
                 }
                 else
                 {
-
                     loadRawImage(openFileName);
                 }
                 return true;
@@ -61,15 +60,13 @@ namespace VirtualKinect
             }
         }
 
-        //very slow
         private void saveCompressedImage(String savePath)
         {
             Task t = Task.Factory.StartNew(() =>
-              {
-                  saveByImageDraw(savePath);
-
-              });
-            // saveByBitmapSource(savePath);
+            {
+                saveByImageDraw(savePath);
+                // saveByBitmapSource(savePath);
+            });
         }
 
         private void saveByImageDraw(String savePath)
@@ -82,7 +79,7 @@ namespace VirtualKinect
             bitmap.Save(savePath, System.Drawing.Imaging.ImageFormat.Png);
         }
 
-        //Do not Use this method
+        //Do not Use this method. this method doesnt work!
         private void saveByBitmapSource(String savePath)
         {
             System.Windows.Media.Imaging.BitmapSource image = System.Windows.Media.Imaging.BitmapSource.Create(
@@ -94,46 +91,36 @@ namespace VirtualKinect
             encoder.Save(stream);
             stream.Close();
         }
+
         private void loadCompressedImage(String openFileName)
         {
-            //  Bitmap bitmap = new Bitmap(Width, Height, System.Drawing.Imaging.PixelFormat.Format32bppRgb);
             this.Bits = new byte[Width * Height * BytesPerPixel];
             Bitmap bmp = new Bitmap(openFileName);
-            for (int i = 0; i < this.Width; i++)
+            //DO NOT use System.Threading.Tasks. Parallel 
+            //Because of the Bitmap Pixel access cannnot will not take multiple access
+            for (int id = 0; id < Width * Height; id++)
             {
-                for (int j = 0; j < this.Height; j++)
-                {
+                int i = id % Width;
+                int j = id / Width;
 
-                    int idx = (i + j * Width) * BytesPerPixel;
-                   Color color = bmp.GetPixel(i, j);
-                   Bits[idx] = color.B;
-                   Bits[idx + 1] = color.G;
-                   Bits[idx + 2] = color.R;
-                   Bits[idx + 3] = color.A;
-
-                }
+                int idx = (i + j * Width) * BytesPerPixel;
+                Color color = bmp.GetPixel(i, j);
+                Bits[idx] = color.B;
+                Bits[idx + 1] = color.G;
+                Bits[idx + 2] = color.R;
+                Bits[idx + 3] = color.A;
             }
-            //MemoryStream ms = new MemoryStream();
-            //bmp.Save(ms);
-            //byte[] img = ms.GetBuffer();
+            bmp.Dispose();
 
-
-
-            //Bitmap bmp = new Bitmap(openFileName);
-            //ImageConverter imgconv = new ImageConverter();
-            //this.Bits = (byte[])imgconv.ConvertTo(bitmap, typeof(byte[]));
-            //MemoryStream ms = new MemoryStream();
-            //  bmp.Save(ms, PixelFormat.Format32bppRgb);
-            //this.Bits = ms.GetBuffer(); 
         }
 
         private void saveRawImageTask(String savePath)
         {
             Task t = Task.Factory.StartNew(() =>
-                    {
+            {
 
-                        saveRawImage(savePath);
-                    });
+                saveRawImage(savePath);
+            });
 
         }
 
@@ -142,22 +129,14 @@ namespace VirtualKinect
             System.IO.FileStream fs = new System.IO.FileStream(savePath, System.IO.FileMode.Create, System.IO.FileAccess.Write);
             fs.Write(Bits, 0, Bits.Length);
             fs.Close();
-
-
         }
 
         private void loadRawImage(String openFileName)
         {
-
             System.IO.FileStream fs = new System.IO.FileStream(openFileName, System.IO.FileMode.Open, System.IO.FileAccess.Read);
-            //ファイルを読み込むバイト型配列を作成する
             Bits = new byte[fs.Length];
-            //ファイルの内容をすべて読み込む
             fs.Read(Bits, 0, Bits.Length);
-            //閉じる
             fs.Close();
-
-
         }
 
 
