@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Xml.Serialization;
 
 namespace VirtualKinect
 {
@@ -12,8 +13,12 @@ namespace VirtualKinect
         public int FrameNumber;
         public Vector NormalToGravity;
         public Microsoft.Research.Kinect.Nui.SkeletonFrameQuality Quality;
-        public SkeletonData[] Skeletons;
+
         public long TimeStamp;
+ 
+        public SkeletonData[] Skeletons;
+     
+        [XmlIgnoreAttribute]
         public Microsoft.Research.Kinect.Nui.SkeletonFrame NUI
         {
 

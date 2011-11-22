@@ -63,8 +63,8 @@ namespace VirtualKinect
             String relativefileName = Path.Combine(saveFileDirectory, fileName);
 
             makeSaveDir();
-            //IO.saveXML(ked, relativefileName);
-            IO.save(ked, relativefileName);
+            IO.saveXML(ked, relativefileName);
+            //IO.save(ked, relativefileName);
 
         }
 

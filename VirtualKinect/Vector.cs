@@ -1,17 +1,21 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Text;
+using System.Xml;
+using System.Xml.Serialization;
+
 
 namespace VirtualKinect
 {
     [Serializable]
+
     public class Vector
     {
         public float W { get; set; }
         public float X { get; set; }
         public float Y { get; set; }
         public float Z { get; set; }
+
+        [XmlIgnoreAttribute]
         public Microsoft.Research.Kinect.Nui.Vector NUI
         {
             get
@@ -26,7 +30,7 @@ namespace VirtualKinect
             }
             set
             {
-              this.W = value.W;
+                this.W = value.W;
                 this.X = value.X;
                 this.Y = value.Y;
                 this.Z = value.Z;

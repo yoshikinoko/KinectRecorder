@@ -4,17 +4,23 @@ using System.Linq;
 using System.Text;
 using System.IO;
 using System.Runtime.InteropServices;
+using System.Xml;
+using System.Xml.Serialization;
+
 
 namespace VirtualKinect
 {
     [Serializable]
     public class PlanarImage
     {
-        public byte[] Bits;
+
         public int BytesPerPixel;
         public int Height;
         public int Width;
 
+        [XmlIgnoreAttribute]
+        public byte[] Bits;
+        [XmlIgnoreAttribute]
         public Microsoft.Research.Kinect.Nui.PlanarImage NUI
         {
             get
@@ -28,10 +34,10 @@ namespace VirtualKinect
             }
             set
             {
-               // com(this.Bits, value.Bits);
+                // com(this.Bits, value.Bits);
 
                 this.Bits = new byte[value.Bits.Length];
-                Array.Copy(value.Bits,this.Bits, value.Bits.Length);
+                Array.Copy(value.Bits, this.Bits, value.Bits.Length);
                 this.BytesPerPixel = value.BytesPerPixel;
                 this.Height = value.Height;
                 this.Width = value.Width;

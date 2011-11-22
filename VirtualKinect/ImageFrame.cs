@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Xml;
+using System.Xml.Serialization;
 
 namespace VirtualKinect
 {
@@ -15,6 +17,7 @@ namespace VirtualKinect
         public Microsoft.Research.Kinect.Nui.ImageType Type;
         public ImageViewArea ViewArea;
 
+        [XmlIgnoreAttribute]
         public Microsoft.Research.Kinect.Nui.ImageFrame NUI
         {
             get
@@ -31,7 +34,8 @@ namespace VirtualKinect
 
             }
 
-            set {
+            set
+            {
 
                 this.Image = new PlanarImage();
                 this.Image.NUI = value.Image;

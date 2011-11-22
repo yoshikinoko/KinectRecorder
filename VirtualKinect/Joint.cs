@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Xml.Serialization;
 
 namespace VirtualKinect
 {
@@ -11,6 +12,7 @@ namespace VirtualKinect
         public Microsoft.Research.Kinect.Nui.JointID ID { get; set; }
         public Vector Position { get; set; }
         public Microsoft.Research.Kinect.Nui.JointTrackingState TrackingState { get; set; }
+       [XmlIgnoreAttribute]
         public Microsoft.Research.Kinect.Nui.Joint NUI
         {
             get

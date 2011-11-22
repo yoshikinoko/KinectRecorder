@@ -1,59 +1,66 @@
 ﻿using System;
 using System.Collections;
 using System.Reflection;
+using System.Text;
+using System.Xml.Serialization;
 
+using System.Collections.Generic;
 
 namespace VirtualKinect
 {
     [Serializable]
     public struct JointsCollection : IEnumerable
     {
-        private Joint[] _joints;
 
-
+        [XmlIgnoreAttribute]
         public Microsoft.Research.Kinect.Nui.JointsCollection NUI
         {
             set
             {
-
-                _joints = new Joint[value.Count];
-
+                _joints = new ArrayList();
                 foreach (Microsoft.Research.Kinect.Nui.Joint joint in value)
                 {
-                    _joints[(int)joint.ID] = new Joint();
-                    _joints[(int)joint.ID].NUI = joint;
+                    Joint temp_joint = new Joint();
+                    temp_joint.NUI = joint;
+                    _joints.Add(temp_joint);
                 }
             }
         }
-
-        public int Count { get { return _joints.Length; } }
-
+        [XmlIgnoreAttribute]
         public Joint this[Microsoft.Research.Kinect.Nui.JointID i]
         {
             get
             {
-                return _joints[(int)i];
+                return (Joint)_joints[(int)i];
             }
         }
+        [XmlIgnoreAttribute]
+        public int Count { get { return _joints.Count; } }
 
+        private ArrayList _joints;
         public IEnumerator GetEnumerator()
         {
-
             return new JointEnum(_joints);
         }
 
-        public class JointEnum : IEnumerator
+        public void Add(object joint)
         {
-            public Joint[] _joint;
-            int position = -1;
-            public JointEnum(Joint[] list)
+            _joints.Add(joint);
+        }
+
+        private class JointEnum : IEnumerator
+        {
+            private ArrayList _jointList;
+            int position;
+            public JointEnum(ArrayList list)
             {
-                _joint = list;
+                _jointList = (ArrayList)list.Clone();
+                Reset();
             }
             public bool MoveNext()
             {
                 position++;
-                return (position < _joint.Length);
+                return (position < _jointList.Count);
             }
             public void Reset()
             {
@@ -63,18 +70,10 @@ namespace VirtualKinect
             {
                 get
                 {
-                    try
-                    {
-                        return _joint[position];
-                    }
-                    catch (IndexOutOfRangeException)
-                    {
-                        throw new InvalidOperationException();
-                    }
+                    return _jointList[position];
                 }
             }
         }
-
 
     }
 

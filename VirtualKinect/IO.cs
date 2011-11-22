@@ -9,12 +9,21 @@ namespace VirtualKinect
     {
         public static void saveXML(KinectEventData ked, String fileName)
         {
+
+        
             System.Xml.Serialization.XmlSerializer serializer =
-                     new System.Xml.Serialization.XmlSerializer(typeof(KinectEventData));
+                     new System.Xml.Serialization.XmlSerializer((ked.skeletonFrameEvents).GetType());
             System.IO.FileStream fs = new System.IO.FileStream(
                 fileName, System.IO.FileMode.Create);
-            serializer.Serialize(fs, fileName);
+            serializer.Serialize(fs, ked.skeletonFrameEvents);
             fs.Close();
+
+            //System.Xml.Serialization.XmlSerializer serializer =
+            //         new System.Xml.Serialization.XmlSerializer(typeof(SkeletonFrameEventData));
+            //System.IO.FileStream fs = new System.IO.FileStream(
+            //    fileName, System.IO.FileMode.Create);
+            //serializer.Serialize(fs, );
+            //fs.Close();
         }
         public static KinectEventData loadXML(string fileName)
         {

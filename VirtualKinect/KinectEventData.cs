@@ -7,17 +7,17 @@ using System.Xml.Serialization;
 namespace VirtualKinect
 {
     [Serializable]
-    [XmlRootAttribute("VirtualKinectEvent", Namespace = "http://www.cpandl.com", IsNullable = false)]
     public class KinectEventData
     {
+            [XmlIgnoreAttribute]
         public const String extension = ".vkd";
-        [XmlArrayAttribute("DepthFrameEvents")]
+       [XmlIgnoreAttribute]
         public DepthFrameEventData[] depthFrameEvents;
-        [XmlArrayAttribute("ImageFrameEvents")]
+             [XmlIgnoreAttribute]
         public ImageFrameEventData[] imageFrameEvents;
-        [XmlArrayAttribute("SkeletonFrameEvents")]
+
         public SkeletonFrameEventData[] skeletonFrameEvents;
-        [XmlAttribute]
+     
         public DateTime date;
         public long duration;
         public void set(DateTime date, long duration, DepthFrameEventData[] depthFrameEvents, ImageFrameEventData[] imageFrameEvents, SkeletonFrameEventData[] skeletonFrameEvents)
