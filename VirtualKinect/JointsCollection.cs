@@ -31,7 +31,13 @@ namespace VirtualKinect
         {
             get
             {
-                return (Joint)_joints[(int)i];
+                for (int k = 0; k < _joints.Count; k++)
+                {
+                    Joint j = (Joint)_joints[k];
+                    if (j.ID.Equals(i))
+                        return j;
+                }
+                return new Joint();
             }
         }
         [XmlIgnoreAttribute]
@@ -45,6 +51,8 @@ namespace VirtualKinect
 
         public void Add(object joint)
         {
+            if (_joints == null)
+                _joints = new ArrayList();
             _joints.Add(joint);
         }
 

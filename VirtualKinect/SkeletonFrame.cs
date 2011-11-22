@@ -9,13 +9,16 @@ namespace VirtualKinect
     [Serializable]
     public class SkeletonFrame
     {
-        public Vector FloorClipPlane;
+        [XmlAttribute]
         public int FrameNumber;
-        public Vector NormalToGravity;
+        [XmlAttribute]
+        public long TimeStamp;
+        [XmlAttribute]
         public Microsoft.Research.Kinect.Nui.SkeletonFrameQuality Quality;
 
-        public long TimeStamp;
- 
+        public Vector FloorClipPlane;
+        public Vector NormalToGravity;
+      
         public SkeletonData[] Skeletons;
      
         [XmlIgnoreAttribute]

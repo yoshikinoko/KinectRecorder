@@ -6,17 +6,175 @@ using System.IO;
 using System.Runtime.InteropServices;
 using System.Xml;
 using System.Xml.Serialization;
-
-
+using System.Drawing;
+using System.Drawing.Imaging;
+using System.Threading.Tasks;
 namespace VirtualKinect
 {
     [Serializable]
     public class PlanarImage
     {
 
+        public bool loadImage(String eventDataRootFolder)
+        {
+            if (rawFileName.Length == 0)
+            {
+                return false;
+            }
+            else
+            {
+                String openFileName = Path.Combine(eventDataRootFolder, rawFileName);
+
+                if (useCompressedImage)
+                {
+                    loadCompressedImage(openFileName);
+                }
+                else
+                {
+
+                    loadRawImage(openFileName);
+                }
+                return true;
+            }
+
+        }
+
+        public bool saveImage(String saveRootFolder)
+        {
+            if (rawFileName.Length == 0 || this.Bits == null)
+            {
+                return false;
+            }
+            else
+            {
+                String savePath = Path.Combine(saveRootFolder, rawFileName);
+
+                if (useCompressedImage)
+                {
+                    saveCompressedImage(savePath);
+                }
+                else
+                {
+                    saveRawImageTask(savePath);
+                }
+                return true;
+            }
+        }
+
+        //very slow
+        private void saveCompressedImage(String savePath)
+        {
+            Task t = Task.Factory.StartNew(() =>
+              {
+                  saveByImageDraw(savePath);
+
+              });
+            // saveByBitmapSource(savePath);
+        }
+
+        private void saveByImageDraw(String savePath)
+        {
+            Bitmap bitmap = new Bitmap(Width, Height, System.Drawing.Imaging.PixelFormat.Format32bppRgb);
+            BitmapData bd = bitmap.LockBits(new Rectangle(0, 0, bitmap.Width, bitmap.Height), ImageLockMode.WriteOnly, PixelFormat.Format32bppRgb);
+            Marshal.Copy(Bits, 0, bd.Scan0, Bits.Length);
+
+            bitmap.UnlockBits(bd);
+            bitmap.Save(savePath, System.Drawing.Imaging.ImageFormat.Png);
+        }
+
+        //Do not Use this method
+        private void saveByBitmapSource(String savePath)
+        {
+            System.Windows.Media.Imaging.BitmapSource image = System.Windows.Media.Imaging.BitmapSource.Create(
+        this.Width, this.Height, 96, 96, System.Windows.Media.PixelFormats.Bgra32, null, this.Bits, this.Width * this.BytesPerPixel);
+            FileStream stream = new FileStream(savePath, FileMode.Create);
+            System.Windows.Media.Imaging.PngBitmapEncoder encoder = new System.Windows.Media.Imaging.PngBitmapEncoder();
+            encoder.Interlace = System.Windows.Media.Imaging.PngInterlaceOption.Off;
+            encoder.Frames.Add(System.Windows.Media.Imaging.BitmapFrame.Create(image));
+            encoder.Save(stream);
+            stream.Close();
+        }
+        private void loadCompressedImage(String openFileName)
+        {
+            //  Bitmap bitmap = new Bitmap(Width, Height, System.Drawing.Imaging.PixelFormat.Format32bppRgb);
+            this.Bits = new byte[Width * Height * BytesPerPixel];
+            Bitmap bmp = new Bitmap(openFileName);
+            for (int i = 0; i < this.Width; i++)
+            {
+                for (int j = 0; j < this.Height; j++)
+                {
+
+                    int idx = (i + j * Width) * BytesPerPixel;
+                   Color color = bmp.GetPixel(i, j);
+                   Bits[idx] = color.B;
+                   Bits[idx + 1] = color.G;
+                   Bits[idx + 2] = color.R;
+                   Bits[idx + 3] = color.A;
+
+                }
+            }
+            //MemoryStream ms = new MemoryStream();
+            //bmp.Save(ms);
+            //byte[] img = ms.GetBuffer();
+
+
+
+            //Bitmap bmp = new Bitmap(openFileName);
+            //ImageConverter imgconv = new ImageConverter();
+            //this.Bits = (byte[])imgconv.ConvertTo(bitmap, typeof(byte[]));
+            //MemoryStream ms = new MemoryStream();
+            //  bmp.Save(ms, PixelFormat.Format32bppRgb);
+            //this.Bits = ms.GetBuffer(); 
+        }
+
+        private void saveRawImageTask(String savePath)
+        {
+            Task t = Task.Factory.StartNew(() =>
+                    {
+
+                        saveRawImage(savePath);
+                    });
+
+        }
+
+        private void saveRawImage(String savePath)
+        {
+            System.IO.FileStream fs = new System.IO.FileStream(savePath, System.IO.FileMode.Create, System.IO.FileAccess.Write);
+            fs.Write(Bits, 0, Bits.Length);
+            fs.Close();
+
+
+        }
+
+        private void loadRawImage(String openFileName)
+        {
+
+            System.IO.FileStream fs = new System.IO.FileStream(openFileName, System.IO.FileMode.Open, System.IO.FileAccess.Read);
+            //ファイルを読み込むバイト型配列を作成する
+            Bits = new byte[fs.Length];
+            //ファイルの内容をすべて読み込む
+            fs.Read(Bits, 0, Bits.Length);
+            //閉じる
+            fs.Close();
+
+
+        }
+
+
+
+
+        [XmlAttribute]
         public int BytesPerPixel;
+        [XmlAttribute]
         public int Height;
+        [XmlAttribute]
         public int Width;
+        [XmlAttribute]
+        public string rawFileName;
+        [XmlAttribute]
+        public string previewFileName;
+        [XmlAttribute]
+        public bool useCompressedImage;
 
         [XmlIgnoreAttribute]
         public byte[] Bits;
@@ -35,18 +193,13 @@ namespace VirtualKinect
             set
             {
                 // com(this.Bits, value.Bits);
-
                 this.Bits = new byte[value.Bits.Length];
                 Array.Copy(value.Bits, this.Bits, value.Bits.Length);
                 this.BytesPerPixel = value.BytesPerPixel;
                 this.Height = value.Height;
                 this.Width = value.Width;
-
-
             }
         }
-
-
         public static unsafe void com(byte[] dst, byte[] src)
         {
             dst = new byte[src.Length];
@@ -56,6 +209,7 @@ namespace VirtualKinect
                     pbytes[i] = src[i];
             }
         }
+
     }
 
 }

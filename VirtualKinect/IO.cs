@@ -12,18 +12,12 @@ namespace VirtualKinect
 
         
             System.Xml.Serialization.XmlSerializer serializer =
-                     new System.Xml.Serialization.XmlSerializer((ked.skeletonFrameEvents).GetType());
+                     new System.Xml.Serialization.XmlSerializer((ked).GetType());
             System.IO.FileStream fs = new System.IO.FileStream(
                 fileName, System.IO.FileMode.Create);
-            serializer.Serialize(fs, ked.skeletonFrameEvents);
+            serializer.Serialize(fs, ked);
             fs.Close();
 
-            //System.Xml.Serialization.XmlSerializer serializer =
-            //         new System.Xml.Serialization.XmlSerializer(typeof(SkeletonFrameEventData));
-            //System.IO.FileStream fs = new System.IO.FileStream(
-            //    fileName, System.IO.FileMode.Create);
-            //serializer.Serialize(fs, );
-            //fs.Close();
         }
         public static KinectEventData loadXML(string fileName)
         {

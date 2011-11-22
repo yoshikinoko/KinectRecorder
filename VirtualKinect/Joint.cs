@@ -9,10 +9,13 @@ namespace VirtualKinect
     [Serializable]
     public class Joint
     {
+        [XmlAttribute]
         public Microsoft.Research.Kinect.Nui.JointID ID { get; set; }
-        public Vector Position { get; set; }
+        [XmlAttribute]
         public Microsoft.Research.Kinect.Nui.JointTrackingState TrackingState { get; set; }
-       [XmlIgnoreAttribute]
+   
+        public Vector Position { get; set; }
+        [XmlIgnoreAttribute]
         public Microsoft.Research.Kinect.Nui.Joint NUI
         {
             get

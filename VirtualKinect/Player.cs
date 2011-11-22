@@ -18,7 +18,11 @@ namespace VirtualKinect
         }
         public void load(String fileName)
         {
-            ked = IO.load(fileName);
+            //            ked = IO.load(fileName);
+            String eventDataFolderRoot = System.IO.Path.GetDirectoryName(fileName);
+
+            ked = IO.loadXML(fileName);
+            ked.loadRawEventData(eventDataFolderRoot);
             timeline = sortByTimeline(ked);
             _fileLoaded = true;
         }
@@ -27,29 +31,29 @@ namespace VirtualKinect
 
         public bool stepPlay()
         {
-          
-                if (eventIndex >= timeline.Length)
-                    return false;
 
-                EventTiming et = timeline[eventIndex];
+            if (eventIndex >= timeline.Length)
+                return false;
 
-                switch (et.type)
-                {
-                    case EventTiming.EventType.DepthFrameEvent:
-                        executeDepthFrameEvent(et.index);
-                        break;
-                    case EventTiming.EventType.ImageFrameEvent:
-                        executeImageEvent(et.index);
-                        break;
-                    case EventTiming.EventType.SkeletonFrameEvent:
-                        skeletonFrameEvent(et.index);
+            EventTiming et = timeline[eventIndex];
 
-                        break;
-                }
+            switch (et.type)
+            {
+                case EventTiming.EventType.DepthFrameEvent:
+                    executeDepthFrameEvent(et.index);
+                    break;
+                case EventTiming.EventType.ImageFrameEvent:
+                    executeImageEvent(et.index);
+                    break;
+                case EventTiming.EventType.SkeletonFrameEvent:
+                    skeletonFrameEvent(et.index);
 
-                eventIndex++;
-                return true;
-            
+                    break;
+            }
+
+            eventIndex++;
+            return true;
+
         }
 
         public void resetPlaying()
@@ -57,7 +61,7 @@ namespace VirtualKinect
             eventIndex = 0;
         }
 
-      
+
         public long duration
         {
             get
@@ -80,10 +84,10 @@ namespace VirtualKinect
                     return;
                 while (timeline[eventIndex].time < currentTime)
                 {
-                   if(!stepPlay())
-                       break;
-                   if (eventIndex >= timeline.Length)
-                       break;     
+                    if (!stepPlay())
+                        break;
+                    if (eventIndex >= timeline.Length)
+                        break;
                 }
             }
 

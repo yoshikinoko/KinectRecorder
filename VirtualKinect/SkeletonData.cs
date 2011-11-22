@@ -13,9 +13,14 @@ namespace VirtualKinect
         [XmlArrayItem(Type = typeof(Joint))]
         public JointsCollection Joints;
         public Vector Position;
+
+        [XmlAttribute]
         public Microsoft.Research.Kinect.Nui.SkeletonQuality Quality;
+        [XmlAttribute]
         public int TrackingID;
+        [XmlAttribute]
         public Microsoft.Research.Kinect.Nui.SkeletonTrackingState TrackingState;
+        [XmlAttribute]
         public int UserIndex;
 
         [XmlIgnoreAttribute]

@@ -8,10 +8,21 @@ namespace VirtualKinect
     public class Recorder
     {
         private const String saveFileDirectory = "data";
+        private const String _eventDataFolder = "_eventData";
+        public String eventDataFolder
+        {
+            get
+            {
+                return Path.Combine(saveFileDirectory, date.ToString("yyyy-MM-dd-HH-mm-ss") + _eventDataFolder);
+            }
+
+        }
         private ArrayList depthFrameEvents;
         private ArrayList imageFrameEvents;
         private ArrayList skeletonFrameEvents;
         private DateTime date;
+
+
         private long duration;
         private Stopwatch stopwatch;
         private bool recording;
@@ -30,6 +41,7 @@ namespace VirtualKinect
             imageFrameEvents = new ArrayList();
             skeletonFrameEvents = new ArrayList();
             date = DateTime.Now;
+            makeSaveDir();
             stopwatch = new Stopwatch();
             stopwatch.Start();
             recording = true;
@@ -44,12 +56,18 @@ namespace VirtualKinect
             stopwatch.Stop();
             saveData();
         }
-        private static void makeSaveDir()
+        private void makeSaveDir()
         {
-            if (!Directory.Exists(saveFileDirectory))
-                Directory.CreateDirectory(saveFileDirectory);
+            mkDir(saveFileDirectory);
+            mkDir(this.eventDataFolder);
+        }
+        private static void mkDir(String dir)
+        {
+            if (!Directory.Exists(dir))
+                Directory.CreateDirectory(dir);
 
         }
+
         private void saveData()
         {
             DepthFrameEventData[] dfe = (DepthFrameEventData[])depthFrameEvents.ToArray(typeof(DepthFrameEventData));
@@ -59,8 +77,8 @@ namespace VirtualKinect
             KinectEventData ked = new KinectEventData();
 
             ked.set(date, this.duration, dfe, ife, sfe);
-            String fileName = DateTime.Now.ToString("yyyy-MM-dd-HH-mm-ss") + KinectEventData.extension;
-            String relativefileName = Path.Combine(saveFileDirectory, fileName);
+            String fileName = date.ToString("yyyy-MM-dd-HH-mm-ss") + KinectEventData.extension;
+            String relativefileName = Path.Combine(eventDataFolder, fileName);
 
             makeSaveDir();
             IO.saveXML(ked, relativefileName);
@@ -72,7 +90,7 @@ namespace VirtualKinect
         {
             if (!recording)
                 return;
-            imageFrameEvents.Add(new ImageFrameEventData(e, stopwatch.ElapsedMilliseconds));
+            imageFrameEvents.Add(new ImageFrameEventData(e, stopwatch.ElapsedMilliseconds, eventDataFolder));
         }
         public void addSkeletonFrameEvent(Microsoft.Research.Kinect.Nui.SkeletonFrameReadyEventArgs e)
         {
@@ -80,10 +98,10 @@ namespace VirtualKinect
                 return;
             foreach (Microsoft.Research.Kinect.Nui.SkeletonData data in e.SkeletonFrame.Skeletons)
             {
-                if (Microsoft.Research.Kinect.Nui.SkeletonTrackingState.Tracked == data.TrackingState)
-                {
-                    Console.WriteLine("goodskeleton:" + skeletonFrameEvents.Count);
-                }
+                //if (Microsoft.Research.Kinect.Nui.SkeletonTrackingState.Tracked == data.TrackingState)
+                //{
+                //    Console.WriteLine("goodskeleton:" + skeletonFrameEvents.Count);
+                //}
             }
 
 
@@ -93,7 +111,7 @@ namespace VirtualKinect
         {
             if (!recording)
                 return;
-            depthFrameEvents.Add(new DepthFrameEventData(e, stopwatch.ElapsedMilliseconds));
+            depthFrameEvents.Add(new DepthFrameEventData(e, stopwatch.ElapsedMilliseconds, eventDataFolder));
         }
     }
 

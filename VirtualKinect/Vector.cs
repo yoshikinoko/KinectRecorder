@@ -7,14 +7,16 @@ using System.Xml.Serialization;
 namespace VirtualKinect
 {
     [Serializable]
-
     public class Vector
     {
-        public float W { get; set; }
-        public float X { get; set; }
-        public float Y { get; set; }
-        public float Z { get; set; }
-
+        [XmlAttribute]
+        public float W;
+        [XmlAttribute]
+        public float X;
+        [XmlAttribute]
+        public float Y;
+        [XmlAttribute]
+        public float Z;
         [XmlIgnoreAttribute]
         public Microsoft.Research.Kinect.Nui.Vector NUI
         {
