@@ -102,8 +102,8 @@ namespace SkeletalViewer
             }
             catch (InvalidOperationException)
             {
-               // System.Windows.MessageBox.Show("Runtime initialization failed. Please make sure Kinect device is plugged in.");
-              //  return;
+                // System.Windows.MessageBox.Show("Runtime initialization failed. Please make sure Kinect device is plugged in.");
+                //  return;
             }
 
 
@@ -187,26 +187,12 @@ namespace SkeletalViewer
 
         void nui_DepthFrameReady(object sender, VirtualKinect.ImageFrameReadyEventArgs e)
         {
-            //For VirtualKinect Recording
-            //recorder.addDepthFrameEvent(e);
-            Console.WriteLine("nui_DepthFrameReady called");
-            Console.WriteLine("timestamp " + e.ImageFrame.Timestamp);
             VirtualKinect.PlanarImage Image = e.ImageFrame.Image;
             byte[] convertedDepthFrame = convertDepthFrame(Image.Bits);
 
             depth.Source = BitmapSource.Create(
                 Image.Width, Image.Height, 96, 96, PixelFormats.Bgr32, null, convertedDepthFrame, Image.Width * 4);
 
-           // ++totalFrames;
-
-            //DateTime cur = DateTime.Now;
-            //if (cur.Subtract(lastTime) > TimeSpan.FromSeconds(1))
-            //{
-            //    int frameDiff = totalFrames - lastFrames;
-            //    lastFrames = totalFrames;
-            //    lastTime = cur;
-            //    frameRate.Text = frameDiff.ToString() + " fps";
-            //}
         }
 
         private Point getDisplayPosition(VirtualKinect.Joint joint)
@@ -243,9 +229,6 @@ namespace SkeletalViewer
         void nui_SkeletonFrameReady(object sender, VirtualKinect.SkeletonFrameReadyEventArgs e)
         {
             //For VirtualKinect Recording
-            //recorder.addSkeletonFrameEvent(e);
-            Console.WriteLine("nui_SkeletonFrameReady called");
-            Console.WriteLine("timestamp " + e.SkeletonFrame.TimeStamp);
 
             VirtualKinect.SkeletonFrame skeletonFrame = e.SkeletonFrame;
             int iSkeleton = 0;
@@ -292,13 +275,6 @@ namespace SkeletalViewer
 
         void nui_ColorFrameReady(object sender, VirtualKinect.ImageFrameReadyEventArgs e)
         {
-            //For VirtualKinect Recording
-            //recorder.addImageFrameEvent(e);
-            Console.WriteLine("nui_ColorFrameReady called");
-            Console.WriteLine("timestamp " + e.ImageFrame.Timestamp);
-
-            // 32-bit per pixel, RGBA image
-        //    Microsoft.Research.Kinect.Nui.PlanarImage Image = e.ImageFrame.Image.NUI;
             VirtualKinect.PlanarImage Image = e.ImageFrame.Image;
 
             video.Source = BitmapSource.Create(
@@ -359,7 +335,7 @@ namespace SkeletalViewer
             stopwatch.Stop();
             Button_Status.Content = "Play";
             playingSequenceNow = false;
-          
+
         }
 
         private bool loadContents()
@@ -373,30 +349,30 @@ namespace SkeletalViewer
             }
             player.load(playingFileName.Text);
             playingStatus.Text = fileName;
-            TimeSpan ts = new TimeSpan(0,0,0,0,(int)player.duration);
-            TimeSpan tsShow = new TimeSpan(ts.Hours,ts.Minutes,ts.Seconds);
+            TimeSpan ts = new TimeSpan(0, 0, 0, 0, (int)player.duration);
+            TimeSpan tsShow = new TimeSpan(ts.Hours, ts.Minutes, ts.Seconds);
             SeaquenceDurationTime.Content = ts.ToString();
             return true;
 
         }
         void dispatcherTimer_Tick(object sender, EventArgs e)
         {
-           SeaquenceTime.Content = DateTime.Now.ToLongTimeString();
-           long currentPlayingSequenceTime = stopwatch.ElapsedMilliseconds;
-          
+            SeaquenceTime.Content = DateTime.Now.ToLongTimeString();
+            long currentPlayingSequenceTime = stopwatch.ElapsedMilliseconds;
+
             if (player.duration < currentPlayingSequenceTime)
-               stopSequencePlayingTimer();
-      
+                stopSequencePlayingTimer();
+
             player.executeEvents(currentPlayingSequenceTime);
             TimeSpan span = new TimeSpan(0, 0, 0, 0, (int)currentPlayingSequenceTime);
             TimeSpan tsToShow = new TimeSpan(span.Hours, span.Minutes, span.Seconds);
-            SeaquenceTime.Content = tsToShow.ToString(); 
+            SeaquenceTime.Content = tsToShow.ToString();
 
         }
 
         private void SeaquencePosition_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
-            
+
         }
     }
 }
