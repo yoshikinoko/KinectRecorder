@@ -38,6 +38,18 @@ namespace VirtualKinect
 
         }
 
+        public Task loadImageTask(String eventDataRootFolder)
+        {
+            Task t = Task.Factory.StartNew(() => { loadImage(eventDataRootFolder); });
+            return t;
+        }
+
+        public Task saveImageTask(String saveRootFolder)
+        {
+            Task t = Task.Factory.StartNew(() => { saveImage(saveRootFolder); });
+            return t;
+        }
+
         public bool saveImage(String saveRootFolder)
         {
             if (rawFileName.Length == 0 || this.Bits == null)

@@ -13,45 +13,112 @@ namespace VirtualKinect
     public class KinectEventData
     {
         [XmlAttribute]
-        public String datafolder;
+        public string datafolder;
         [XmlAttribute]
-        public const String dateFormatStyle = "yyyy-MM-dd-HH-mm-ss";
+        public const string dateFormatStyle = "yyyy-MM-dd-HH-mm-ss";
         [XmlAttribute]
-        public const String extension = ".vkd";
+        public const string extension = ".vkd";
         [XmlAttribute]
         public DateTime date;
         [XmlAttribute]
         public long duration;
+        [XmlAttribute]
+        public string device_id;
 
+        
+        public string[] skeletonFrameEventFileNames;
+        public string[] imageFrameEventFileNames;
+        public string[] depthFrameEventFileNames;
+
+        //[XmlIgnoreAttribute]
         public SkeletonFrameEventData[] skeletonFrameEvents;
-
+        //[XmlIgnoreAttribute]
         public ImageFrameEventData[] imageFrameEvents;
-
+        //[XmlIgnoreAttribute]
         public DepthFrameEventData[] depthFrameEvents;
 
-        private void loadRawImageEventData(String eventRootFolder)
+
+        private void loadSkeletonFrameEventData(string eventRootfolder)
+        {
+            for (int i = 0; i < skeletonFrameEventFileNames.Length; i++)
+            {
+                string loadFileName = Path.Combine(eventRootfolder, this.skeletonFrameEventFileNames[i]);
+                skeletonFrameEvents[i] = (SkeletonFrameEventData)IO.loadXMLSerialType(loadFileName,typeof(SkeletonFrameEventData));
+            }
+        }
+        private void loadImageFrameEventData(string eventRootfolder)
+        {
+            for (int i = 0; i < imageFrameEventFileNames.Length; i++)
+            {
+                string loadFileName = Path.Combine(eventRootfolder, this.imageFrameEventFileNames[i]);
+                imageFrameEvents[i] = (ImageFrameEventData)IO.loadXMLSerialType(loadFileName,typeof(ImageFrameEventData));
+            }
+        }
+        private void loadDepthFrameEventData(string eventRootfolder)
+        {
+            for (int i = 0; i < depthFrameEventFileNames.Length; i++)
+            {
+                string loadFileName = Path.Combine(eventRootfolder, this.depthFrameEventFileNames[i]);
+                depthFrameEvents[i] = (DepthFrameEventData)IO.loadXMLSerialType(loadFileName,typeof(DepthFrameEventData));
+            }
+        }
+        public void loadEventData(string eventRootFolder)
+        {
+            this.skeletonFrameEvents = new SkeletonFrameEventData[skeletonFrameEventFileNames.Length];
+            loadSkeletonFrameEventData(eventRootFolder);
+            this.imageFrameEvents = new ImageFrameEventData[imageFrameEventFileNames.Length];
+            loadImageFrameEventData(eventRootFolder);
+            this.depthFrameEvents = new DepthFrameEventData[depthFrameEventFileNames.Length];
+            loadDepthFrameEventData(eventRootFolder);
+        }
+
+        private void loadRawImageEventData(string eventRootFolder)
         {
             Parallel.For(0, imageFrameEvents.Length, (n) => imageFrameEvents[n].imageFrame.Image.loadImage(eventRootFolder));
         }
 
-        private void loadRawDepthEventData(String eventRootFolder)
+        //Using Async
+        private async void loadRawImageEventDataAsync(string eventRootFolder)
         {
-            Parallel.For(0, depthFrameEvents.Length, (n) => depthFrameEvents[n].imageFrame.Image.loadImage(eventRootFolder));
+            for (int n = 0; n < imageFrameEvents.Length; n++)
+            {
+                await imageFrameEvents[n].imageFrame.Image.loadImageTask(eventRootFolder);
+            }
         }
 
-        public void loadRawEventData(String eventRootFolder)
+
+        private async void loadRawDepthEventDataAsync(string eventRootFolder)
         {
-            loadRawImageEventData(eventRootFolder);
-            loadRawDepthEventData(eventRootFolder);
+            for (int n = 0; n < depthFrameEvents.Length; n++)
+            {
+                await depthFrameEvents[n].imageFrame.Image.loadImageTask(eventRootFolder);
+            }
         }
 
-        public void set(DateTime date, long duration, DepthFrameEventData[] depthFrameEvents, ImageFrameEventData[] imageFrameEvents, SkeletonFrameEventData[] skeletonFrameEvents)
+        public void loadRawEventData(string eventRootFolder)
         {
+            loadRawImageEventDataAsync(eventRootFolder);
+            loadRawDepthEventDataAsync(eventRootFolder);
+        }
+
+        public void setFileNames(DateTime date, long duration, string[] depthFrameEventFileNames, string[] imageFrameEventFileNames, string[] skeletonFrameEventFileNames)
+        {
+            this.date = date;
+            this.depthFrameEventFileNames = depthFrameEventFileNames;
+            this.imageFrameEventFileNames = imageFrameEventFileNames;
+            this.skeletonFrameEventFileNames = skeletonFrameEventFileNames;
+            this.duration = duration;
+        }
+
+
+        public void set(string device_id, DateTime date, long duration, DepthFrameEventData[] depthFrameEvents, ImageFrameEventData[] imageFrameEvents, SkeletonFrameEventData[] skeletonFrameEvents)
+        {
+
+            this.device_id = device_id;
             this.date = date;
             this.depthFrameEvents = depthFrameEvents;
             this.imageFrameEvents = imageFrameEvents;
             this.skeletonFrameEvents = skeletonFrameEvents;
-
             this.duration = duration;
         }
     }

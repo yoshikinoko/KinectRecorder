@@ -19,9 +19,8 @@ namespace VirtualKinect
         public void load(String fileName)
         {
             String eventDataFolderRoot = System.IO.Path.GetDirectoryName(fileName);
-            // ked = IO.load(fileName);
             ked = IO.loadXML(fileName);
-            ked.loadRawEventData(eventDataFolderRoot);
+           // ked.loadRawEventData(eventDataFolderRoot);
             timeline = sortByTimeline(ked);
             _fileLoaded = true;
         }
