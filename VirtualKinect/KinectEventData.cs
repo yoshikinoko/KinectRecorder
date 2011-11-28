@@ -25,16 +25,16 @@ namespace VirtualKinect
         [XmlAttribute]
         public string device_id;
 
-        
+
         public string[] skeletonFrameEventFileNames;
         public string[] imageFrameEventFileNames;
         public string[] depthFrameEventFileNames;
 
-        //[XmlIgnoreAttribute]
+        [XmlIgnoreAttribute]
         public SkeletonFrameEventData[] skeletonFrameEvents;
-        //[XmlIgnoreAttribute]
+        [XmlIgnoreAttribute]
         public ImageFrameEventData[] imageFrameEvents;
-        //[XmlIgnoreAttribute]
+        [XmlIgnoreAttribute]
         public DepthFrameEventData[] depthFrameEvents;
 
 
@@ -43,15 +43,18 @@ namespace VirtualKinect
             for (int i = 0; i < skeletonFrameEventFileNames.Length; i++)
             {
                 string loadFileName = Path.Combine(eventRootfolder, this.skeletonFrameEventFileNames[i]);
-                skeletonFrameEvents[i] = (SkeletonFrameEventData)IO.loadXMLSerialType(loadFileName,typeof(SkeletonFrameEventData));
+                skeletonFrameEvents[i] = (SkeletonFrameEventData)IO.loadXMLSerialType(loadFileName, typeof(SkeletonFrameEventData));
             }
+
+
+
         }
         private void loadImageFrameEventData(string eventRootfolder)
         {
             for (int i = 0; i < imageFrameEventFileNames.Length; i++)
             {
                 string loadFileName = Path.Combine(eventRootfolder, this.imageFrameEventFileNames[i]);
-                imageFrameEvents[i] = (ImageFrameEventData)IO.loadXMLSerialType(loadFileName,typeof(ImageFrameEventData));
+                imageFrameEvents[i] = (ImageFrameEventData)IO.loadXMLSerialType(loadFileName, typeof(ImageFrameEventData));
             }
         }
         private void loadDepthFrameEventData(string eventRootfolder)
@@ -59,7 +62,7 @@ namespace VirtualKinect
             for (int i = 0; i < depthFrameEventFileNames.Length; i++)
             {
                 string loadFileName = Path.Combine(eventRootfolder, this.depthFrameEventFileNames[i]);
-                depthFrameEvents[i] = (DepthFrameEventData)IO.loadXMLSerialType(loadFileName,typeof(DepthFrameEventData));
+                depthFrameEvents[i] = (DepthFrameEventData)IO.loadXMLSerialType(loadFileName, typeof(DepthFrameEventData));
             }
         }
         public void loadEventData(string eventRootFolder)
@@ -87,6 +90,11 @@ namespace VirtualKinect
         }
 
 
+        private  void loadRawDepthEventData(string eventRootFolder)
+        {
+            Parallel.For(0, depthFrameEvents.Length, (n) => depthFrameEvents[n].imageFrame.Image.loadImage(eventRootFolder));
+        }
+
         private async void loadRawDepthEventDataAsync(string eventRootFolder)
         {
             for (int n = 0; n < depthFrameEvents.Length; n++)
@@ -97,8 +105,8 @@ namespace VirtualKinect
 
         public void loadRawEventData(string eventRootFolder)
         {
-            loadRawImageEventDataAsync(eventRootFolder);
-            loadRawDepthEventDataAsync(eventRootFolder);
+            loadRawImageEventData(eventRootFolder);
+            loadRawDepthEventData(eventRootFolder);
         }
 
         public void setFileNames(DateTime date, long duration, string[] depthFrameEventFileNames, string[] imageFrameEventFileNames, string[] skeletonFrameEventFileNames)
