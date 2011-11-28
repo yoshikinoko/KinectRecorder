@@ -48,9 +48,9 @@ namespace SkeletalViewer
         const int GREEN_IDX = 1;
         const int BLUE_IDX = 0;
         byte[] depthFrame32 = new byte[320 * 240 * 4];
-        
-        
-        Dictionary<JointID,Brush> jointColors = new Dictionary<JointID,Brush>() { 
+
+
+        Dictionary<JointID, Brush> jointColors = new Dictionary<JointID, Brush>() { 
             {JointID.HipCenter, new SolidColorBrush(Color.FromRgb(169, 176, 155))},
             {JointID.Spine, new SolidColorBrush(Color.FromRgb(169, 176, 155))},
             {JointID.ShoulderCenter, new SolidColorBrush(Color.FromRgb(168, 230, 29))},
@@ -112,7 +112,7 @@ namespace SkeletalViewer
             for (int i16 = 0, i32 = 0; i16 < depthFrame16.Length && i32 < depthFrame32.Length; i16 += 2, i32 += 4)
             {
                 int player = depthFrame16[i16] & 0x07;
-                int realDepth = (depthFrame16[i16+1] << 5) | (depthFrame16[i16] >> 3);
+                int realDepth = (depthFrame16[i16 + 1] << 5) | (depthFrame16[i16] >> 3);
                 // transform 13-bit depth information into an 8-bit intensity appropriate
                 // for display (we disregard information in most significant bit)
                 byte intensity = (byte)(255 - (255 * realDepth / 0x0fff));
@@ -203,7 +203,7 @@ namespace SkeletalViewer
         Polyline getBodySegment(Microsoft.Research.Kinect.Nui.JointsCollection joints, Brush brush, params JointID[] ids)
         {
             PointCollection points = new PointCollection(ids.Length);
-            for (int i = 0; i < ids.Length; ++i )
+            for (int i = 0; i < ids.Length; ++i)
             {
                 points.Add(getDisplayPosition(joints[ids[i]]));
             }
@@ -261,8 +261,7 @@ namespace SkeletalViewer
         {
             // 32-bit per pixel, RGBA image
             PlanarImage Image = e.ImageFrame.Image;
-            video.Source = BitmapSource.Create(
-                Image.Width, Image.Height, 96, 96, PixelFormats.Bgr32, null, Image.Bits, Image.Width * Image.BytesPerPixel);
+            video.Source = BitmapSource.Create(Image.Width, Image.Height, 96, 96, PixelFormats.Bgr32, null, Image.Bits, Image.Width * Image.BytesPerPixel);
         }
 
         private void Window_Closed(object sender, EventArgs e)

@@ -9,6 +9,8 @@ using System.Xml.Serialization;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.Threading.Tasks;
+using System.Windows.Media.Imaging;
+using System.Drawing; 
 namespace VirtualKinect
 {
     [Serializable]
@@ -80,15 +82,15 @@ namespace VirtualKinect
                 // saveByBitmapSource(savePath);
             });
         }
-
         private void saveByImageDraw(String savePath)
         {
-            Bitmap bitmap = new Bitmap(Width, Height, System.Drawing.Imaging.PixelFormat.Format32bppRgb);
-            BitmapData bd = bitmap.LockBits(new Rectangle(0, 0, bitmap.Width, bitmap.Height), ImageLockMode.WriteOnly, PixelFormat.Format32bppRgb);
-            Marshal.Copy(Bits, 0, bd.Scan0, Bits.Length);
-
-            bitmap.UnlockBits(bd);
-            bitmap.Save(savePath, System.Drawing.Imaging.ImageFormat.Png);
+            BitmapSource bmp = BitmapSource.Create(Width, Height, 96, 96, System.Windows.Media.PixelFormats.Bgr32, null, this.Bits, Width * BytesPerPixel);
+            FileStream stream = new FileStream(savePath, FileMode.Create);
+            PngBitmapEncoder enc = new PngBitmapEncoder();
+            enc.Interlace = PngInterlaceOption.Off;
+            enc.Frames.Add(BitmapFrame.Create(bmp));
+            enc.Save(stream);
+            stream.Close(); 
         }
 
         //Do not Use this method. this method doesnt work!

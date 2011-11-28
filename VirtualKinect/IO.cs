@@ -18,7 +18,7 @@ namespace VirtualKinect
             KinectEventData ked = (KinectEventData)loadXMLSerial(fileName);
             ked.loadEventData(eventDataFolderRoot);
             ked.loadRawEventData(eventDataFolderRoot);
-            return (KinectEventData)loadXMLSerial(fileName);
+            return ked;
         }
 
         public static void saveXMLSerial(object obj, string fileName)
