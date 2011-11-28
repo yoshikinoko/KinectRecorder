@@ -19,8 +19,6 @@ namespace VirtualKinect
         [XmlAttribute]
         public const string ImageFrameDataSuffix = ".xml";
         [XmlAttribute]
-        public string eventFileName;
-        [XmlAttribute]
         public string device_id;
 
         public SkeletonFrame SkeletonFrame;
@@ -31,9 +29,8 @@ namespace VirtualKinect
             this.SkeletonFrame = new SkeletonFrame();
             this.SkeletonFrame.NUI = e.SkeletonFrame;
             this.time = time;
-            this.eventFileName = ImageFrameDataPrefix + time + ImageFrameDataSuffix;
-            string tmpEventFileName = Path.Combine(saveFolder, eventFileName);
-            IO.saveXMLSerialTask(this, tmpEventFileName);
+            //Push to network
+            //   IO.saveXMLSerialTask(this, tmpEventFileName);
         }
     }
 }

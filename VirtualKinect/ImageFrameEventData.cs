@@ -12,19 +12,15 @@ namespace VirtualKinect
         public const String rawImageFrameDataPrefix = "imgDataRaw";
         [XmlAttribute]
         public const String rawImageFrameDataSuffix = ".png";
-        [XmlAttribute]
-        public const String previewImageFrameDataPrefix = "imgDataPrev";
-        [XmlAttribute]
-        public const String previewImageFrameDataSuffix = ".png";
+
         [XmlAttribute]
         public const string ImageFrameDataPrefix = "imageData";
         [XmlAttribute]
         public const string ImageFrameDataSuffix = ".xml";
-        [XmlAttribute]
-        public string eventFileName;
-
+    
         [XmlAttribute]
         public long time;
+        //Device ID used for network 
         [XmlAttribute]
         public string device_id;
 
@@ -42,9 +38,8 @@ namespace VirtualKinect
             this.imageFrame.Image.rawFileName = imageRawFileName;
             this.imageFrame.Image.useCompressedImage = true;
             this.imageFrame.Image.saveImage(saveFolder);
-            this.eventFileName = ImageFrameDataPrefix + time + ImageFrameDataSuffix;
-            string tmpEventFileName = Path.Combine(saveFolder, eventFileName);
-            IO.saveXMLSerialTask(this, tmpEventFileName);
+            //PUSH to network
+            // IO.saveXMLSerialTask(this, tmpEventFileName);
         }
     }
 }

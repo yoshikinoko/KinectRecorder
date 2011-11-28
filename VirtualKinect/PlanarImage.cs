@@ -10,7 +10,7 @@ using System.Drawing;
 using System.Drawing.Imaging;
 using System.Threading.Tasks;
 using System.Windows.Media.Imaging;
-using System.Drawing; 
+using System.Drawing;
 namespace VirtualKinect
 {
     [Serializable]
@@ -79,7 +79,6 @@ namespace VirtualKinect
             Task t = Task.Factory.StartNew(() =>
             {
                 saveByImageDraw(savePath);
-                // saveByBitmapSource(savePath);
             });
         }
         private void saveByImageDraw(String savePath)
@@ -90,21 +89,9 @@ namespace VirtualKinect
             enc.Interlace = PngInterlaceOption.Off;
             enc.Frames.Add(BitmapFrame.Create(bmp));
             enc.Save(stream);
-            stream.Close(); 
-        }
-
-        //Do not Use this method. this method doesnt work!
-        private void saveByBitmapSource(String savePath)
-        {
-            System.Windows.Media.Imaging.BitmapSource image = System.Windows.Media.Imaging.BitmapSource.Create(
-        this.Width, this.Height, 96, 96, System.Windows.Media.PixelFormats.Bgra32, null, this.Bits, this.Width * this.BytesPerPixel);
-            FileStream stream = new FileStream(savePath, FileMode.Create);
-            System.Windows.Media.Imaging.PngBitmapEncoder encoder = new System.Windows.Media.Imaging.PngBitmapEncoder();
-            encoder.Interlace = System.Windows.Media.Imaging.PngInterlaceOption.Off;
-            encoder.Frames.Add(System.Windows.Media.Imaging.BitmapFrame.Create(image));
-            encoder.Save(stream);
             stream.Close();
         }
+
 
         private void loadCompressedImage(String openFileName)
         {
@@ -132,7 +119,6 @@ namespace VirtualKinect
         {
             Task t = Task.Factory.StartNew(() =>
             {
-
                 saveRawImage(savePath);
             });
 
