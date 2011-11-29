@@ -56,7 +56,7 @@ namespace SkeletalViewer
         const int BLUE_IDX = 0;
         byte[] depthFrame32 = new byte[320 * 240 * 4];
 
-        private const int record_min = 2;
+        private int record_min = 240;
         private int record_cycle_count;
         private int current_rec_count = 0;
         private const double rec_cycle_duration = 10.0;
@@ -362,6 +362,13 @@ namespace SkeletalViewer
 
                 }
             }
+        }
+
+        private void Slider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+            Console.WriteLine("NEWVAL" + e.NewValue);
+            recordtimerdurationLabel.Content = ""+e.NewValue;
+            record_min = (int)(e.NewValue);
         }
 
     }

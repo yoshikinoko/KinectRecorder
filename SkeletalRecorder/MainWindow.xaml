@@ -24,7 +24,12 @@
                     <Button Content="Rec-Stop" Height="23" Name="Button_record_stop" Width="75" Click="Button_record_stop_Click" />
                     <TextBlock Height="23" Name="playingStatus" Text="Broadcasting" />
                     <Label Content="00:00:00" Height="28" Name="SeaquenceTime" Width="70" />
+                </StackPanel>
+                <StackPanel Orientation="Horizontal">
+                    <Label Content="RECORD:Timer Min"  Height="28"  />
+                    <Label Content="10" Name="recordtimerdurationLabel" Height="28"  />
 
+                    <Slider Width="130" Value="240" Interval="1" ValueChanged="Slider_ValueChanged" Minimum="1" Maximum="300" />
                 </StackPanel>
             </StackPanel>
 
