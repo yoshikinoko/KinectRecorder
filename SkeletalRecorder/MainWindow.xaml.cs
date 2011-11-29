@@ -56,6 +56,10 @@ namespace SkeletalViewer
         const int BLUE_IDX = 0;
         byte[] depthFrame32 = new byte[320 * 240 * 4];
 
+        private const int record_min = 2;
+        private int record_cycle_count;
+        private int current_rec_count = 0;
+        private const double rec_cycle_duration = 10.0;
 
         Dictionary<JointID, Brush> jointColors = new Dictionary<JointID, Brush>() { 
             {JointID.HipCenter, new SolidColorBrush(Color.FromRgb(169, 176, 155))},
@@ -82,6 +86,7 @@ namespace SkeletalViewer
 
         private void Window_Loaded(object sender, EventArgs e)
         {
+            record_cycle_count = (int)(((double)record_min * 60.0) / rec_cycle_duration);
             nui = new Runtime();
             recorder = new VirtualKinect.Recorder();
 
@@ -178,7 +183,7 @@ namespace SkeletalViewer
         {
             //For VirtualKinect Recording
             recorder.addDepthFrameEvent(e);
-
+            updateRecordingTime();
             PlanarImage Image = e.ImageFrame.Image;
             byte[] convertedDepthFrame = convertDepthFrame(Image.Bits);
 
@@ -231,7 +236,7 @@ namespace SkeletalViewer
         {
             //For VirtualKinect Recording
             recorder.addSkeletonFrameEvent(e);
-
+            updateRecordingTime();
 
             SkeletonFrame skeletonFrame = e.SkeletonFrame;
             int iSkeleton = 0;
@@ -277,6 +282,7 @@ namespace SkeletalViewer
         {
             //For VirtualKinect Recording
             recorder.addImageFrameEvent(e);
+            updateRecordingTime();
 
             // 32-bit per pixel, RGBA image
             PlanarImage Image = e.ImageFrame.Image;
@@ -316,12 +322,46 @@ namespace SkeletalViewer
         {
             playingStatus.Text = "Saving";
             recorder.stopRecording();
-            playingStatus.Text = "Broadcasting";
+            playingStatus.Text = "REC:STOP";
 
         }
 
         private void Button_loadFile_Click(object sender, RoutedEventArgs e)
         {
+        }
+
+
+        private void updateRecordingTime()
+        {
+            if (recorder.recording)
+            {
+                SeaquenceTime.Content = recorder.recordingTime;
+                if (current_rec_count < record_cycle_count)
+                {
+
+                    if ((double)recorder.recordTimeElapsedMilliseconds / 1000.0 >= rec_cycle_duration)
+                    {
+                        recorder.stopRecording();
+                        playingStatus.Text = "REC:STOP";
+
+                        current_rec_count++;
+                    }
+                    if (current_rec_count < record_cycle_count) {
+                        playingStatus.Text = "RECORDING";
+
+                        recorder.startRecording();
+                    }
+                    
+
+                }
+                else
+                {
+                    recorder.stopRecording();
+                    playingStatus.Text = "REC:STOP";
+
+
+                }
+            }
         }
 
     }

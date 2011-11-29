@@ -11,7 +11,7 @@ namespace VirtualKinect
 
         public DepthFrameEventData() { }
         [XmlAttribute]
-        public long time;
+        public long time = 0;
         [XmlAttribute]
         public const string rawDepthFrameDataPrefix = "depthDataRaw";
         [XmlAttribute]
@@ -24,6 +24,22 @@ namespace VirtualKinect
         public string device_id;
 
         public ImageFrame imageFrame;
+        [XmlIgnoreAttribute]
+        public string saveFileName
+        {
+            get
+            {
+
+                return DepthFrameDataPrefix + time + DepthFrameDataSuffix;
+
+            }
+
+        }
+        private string saveFilePath(string saveFolder)
+        {
+            return Path.Combine(saveFolder, saveFileName);
+
+        }
 
 
         public DepthFrameEventData(Microsoft.Research.Kinect.Nui.ImageFrameReadyEventArgs e, long time, String saveFolder, string devide_id)
@@ -37,8 +53,9 @@ namespace VirtualKinect
             this.imageFrame.Image.rawFileName = imageRawFileName;
             this.imageFrame.Image.useCompressedImage = false;
             this.imageFrame.Image.saveImage(saveFolder);
+            string tmpEventFileName = saveFilePath(saveFolder);
             //TODO: Push to network resource
-            //IO.saveXMLSerialTask(this, tmpEventFileName);
+            IO.saveXMLSerialTask(this, tmpEventFileName);
         }
     }
 }

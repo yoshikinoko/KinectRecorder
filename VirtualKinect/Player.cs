@@ -20,7 +20,6 @@ namespace VirtualKinect
         {
             String eventDataFolderRoot = System.IO.Path.GetDirectoryName(fileName);
             ked = IO.loadXML(fileName);
-           // ked.loadRawEventData(eventDataFolderRoot);
             timeline = sortByTimeline(ked);
             _fileLoaded = true;
         }
@@ -125,6 +124,7 @@ namespace VirtualKinect
         #region timeline
         private static EventTiming[] sortByTimeline(KinectEventData ked)
         {
+            //TODO: do we really need to compare and sort?
 
             IComparer IFEC = new IFEComparer();
             Array.Sort(ked.imageFrameEvents, IFEC);

@@ -367,6 +367,8 @@ namespace SkeletalViewer
             TimeSpan span = new TimeSpan(0, 0, 0, 0, (int)currentPlayingSequenceTime);
             TimeSpan tsToShow = new TimeSpan(span.Hours, span.Minutes, span.Seconds);
             SeaquenceTime.Content = tsToShow.ToString();
+           
+       
 
         }
 

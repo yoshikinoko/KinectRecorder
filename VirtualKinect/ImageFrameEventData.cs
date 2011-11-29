@@ -19,10 +19,26 @@ namespace VirtualKinect
         public const string ImageFrameDataSuffix = ".xml";
     
         [XmlAttribute]
-        public long time;
+        public long time=0;
         //Device ID used for network 
         [XmlAttribute]
         public string device_id;
+        [XmlIgnoreAttribute]
+        public string saveFileName
+        {
+            get
+            {
+
+                return ImageFrameDataPrefix + time + ImageFrameDataSuffix;
+
+            }
+
+        }
+        private string saveFilePath(string saveFolder)
+        {
+            return Path.Combine(saveFolder, saveFileName);
+
+        }
 
 
         public ImageFrame imageFrame;
@@ -38,6 +54,10 @@ namespace VirtualKinect
             this.imageFrame.Image.rawFileName = imageRawFileName;
             this.imageFrame.Image.useCompressedImage = true;
             this.imageFrame.Image.saveImage(saveFolder);
+            string tmpEventFileName = saveFilePath(saveFolder);
+            //TODO: Push to network resource
+            IO.saveXMLSerialTask(this, tmpEventFileName);
+       
             //PUSH to network
             // IO.saveXMLSerialTask(this, tmpEventFileName);
         }

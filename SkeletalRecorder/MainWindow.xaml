@@ -23,6 +23,8 @@
                     <Button Content="Rec-Start" Height="23" Name="Button_record_start" Width="75" Click="Button_record_Click" />
                     <Button Content="Rec-Stop" Height="23" Name="Button_record_stop" Width="75" Click="Button_record_stop_Click" />
                     <TextBlock Height="23" Name="playingStatus" Text="Broadcasting" />
+                    <Label Content="00:00:00" Height="28" Name="SeaquenceTime" Width="70" />
+
                 </StackPanel>
             </StackPanel>
 

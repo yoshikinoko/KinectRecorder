@@ -60,6 +60,7 @@
     <Compile Include="Joint.cs" />
     <Compile Include="JointsCollection.cs" />
     <Compile Include="KinectEventData.cs" />
+    <Compile Include="KinectEventLineData.cs" />
     <Compile Include="PlanarImage.cs" />
     <Compile Include="SkeletonData.cs" />
     <Compile Include="SkeletonFrame.cs" />

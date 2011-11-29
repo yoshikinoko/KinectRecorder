@@ -16,7 +16,7 @@ namespace VirtualKinect
 
             String eventDataFolderRoot = System.IO.Path.GetDirectoryName(fileName);
             KinectEventData ked = (KinectEventData)loadXMLSerial(fileName);
-           // ked.loadEventData(eventDataFolderRoot);
+            ked.loadEventData(eventDataFolderRoot);
             ked.loadRawEventData(eventDataFolderRoot);
             return ked;
         }
