@@ -88,6 +88,10 @@
     <None Include="app.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\SkeletalDrawCore\SkeletalCore.csproj">
+      <Project>{853881D6-A120-4F04-BC92-7D8DB96F840B}</Project>
+      <Name>SkeletalCore</Name>
+    </ProjectReference>
     <ProjectReference Include="..\VirtualKinect\VirtualKinect.csproj">
       <Project>{B8D808CB-C934-4933-A2AC-B7648E84C45C}</Project>
       <Name>VirtualKinect</Name>

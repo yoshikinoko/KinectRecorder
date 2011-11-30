@@ -43,7 +43,7 @@ namespace VirtualKinect
         {
             if (_recording)
                 return;
-         
+
             date = DateTime.Now;
             makeSaveDir();
             stopwatch = new Stopwatch();
@@ -85,40 +85,19 @@ namespace VirtualKinect
             }
         }
 
-        public int recordMinutes
-        {
-
-            get
-            {
-                //  string recordTimeStr = "";
-                long currentRecordingSequenceTime = stopwatch.ElapsedMilliseconds;
-                TimeSpan span = new TimeSpan(0, 0, 0, 0, (int)currentRecordingSequenceTime);
-                TimeSpan tsToShow = new TimeSpan(span.Hours, span.Minutes, span.Seconds);
-                //recordTimeStr = tsToShow.ToString();
-                return (int)span.Minutes;
-
-            }
-
-        }
         public long recordTimeElapsedMilliseconds
         {
             get { return stopwatch.ElapsedMilliseconds; }
         }
 
-
-
-
         private void saveData()
         {
             KinectEventData ked = new KinectEventData();
-            ked.set(device_id, date, duration,sequenceNumber, kinectEventIndexFileName);
+            ked.set(device_id, date, duration, sequenceNumber, kinectEventIndexFileName);
             String fileName = date.ToString(KinectEventData.dateFormatStyle) + KinectEventData.extension;
             String relativefileName = Path.Combine(eventDataFolder, fileName);
-
             makeSaveDir();
             IO.saveXML(ked, relativefileName);
-            //IO.save(ked, relativefileName);
-
         }
 
         public void addImageFrameEvent(Microsoft.Research.Kinect.Nui.ImageFrameReadyEventArgs e)
@@ -126,8 +105,9 @@ namespace VirtualKinect
             if (!_recording)
                 return;
             ImageFrameEventData ife = new ImageFrameEventData(e, stopwatch.ElapsedMilliseconds, eventDataFolder, device_id);
-            saveNextEvent(ife.time,ife.saveFileName, EventType.ImageFrameEvent);
+            saveNextEvent(ife.time, ife.saveFileName, EventType.ImageFrameEvent);
         }
+
         public void addSkeletonFrameEvent(Microsoft.Research.Kinect.Nui.SkeletonFrameReadyEventArgs e)
         {
             if (!_recording)
@@ -135,42 +115,44 @@ namespace VirtualKinect
             SkeletonFrameEventData sfe = new SkeletonFrameEventData(e, stopwatch.ElapsedMilliseconds, eventDataFolder, device_id);
             saveNextEvent(sfe.time, sfe.saveFileName, EventType.SkeletonFrameEvent);
         }
+
         public void addDepthFrameEvent(Microsoft.Research.Kinect.Nui.ImageFrameReadyEventArgs e)
         {
             if (!_recording)
                 return;
             DepthFrameEventData dfe = new DepthFrameEventData(e, stopwatch.ElapsedMilliseconds, eventDataFolder, device_id);
             saveNextEvent(dfe.time, dfe.saveFileName, EventType.DepthFrameEvent);
-     
+
         }
-        private void saveNextEvent(long time,string kinectEventFileName, EventType eventType)
+ 
+        private void saveNextEvent(long time, string kinectEventFileName, EventType eventType)
         {
             if (!isStartRecording)
             {
-                isStartRecording = true;     
+                isStartRecording = true;
                 lastEvent = new KinectEventLineData();
                 lastEvent.set(1, "", time, kinectEventFileName, eventType);
                 kinectEventIndexFileName = lastEvent.saveFileName;
                 sequenceNumber = 2;
             }
-       
-            
+
+
             KinectEventLineData nextEvent = new KinectEventLineData();
-            nextEvent.set(sequenceNumber,lastEvent.saveFileName, time , kinectEventFileName, eventType);
+            nextEvent.set(sequenceNumber, lastEvent.saveFileName, time, kinectEventFileName, eventType);
             lastEvent.nextFileName = nextEvent.saveFileName;
             sequenceNumber++;
-            
+
             lastEvent.save(eventDataFolder);
-              
+
 
             lastEvent = nextEvent;
         }
+  
         private void saveFinilizedEvent()
         {
             lastEvent.finish();
             lastEvent.save(eventDataFolder);
         }
-
 
     }
 

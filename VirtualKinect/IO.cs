@@ -11,13 +11,12 @@ namespace VirtualKinect
         {
             saveXMLSerial((object)ked, fileName);
         }
+
         public static KinectEventData loadXML(string fileName)
         {
 
             String eventDataFolderRoot = System.IO.Path.GetDirectoryName(fileName);
             KinectEventData ked = (KinectEventData)loadXMLSerial(fileName);
-            //ked.loadEventData(eventDataFolderRoot);
-            //ked.loadRawEventData(eventDataFolderRoot);
             return ked;
         }
 
@@ -43,9 +42,9 @@ namespace VirtualKinect
 
         public static object loadXMLSerial(string fileName)
         {
-
             return loadXMLSerialType(fileName, typeof(KinectEventData));
         }
+
         public static object loadXMLSerialType(string fileName, System.Type type)
         {
 
@@ -58,7 +57,6 @@ namespace VirtualKinect
         }
 
 
-        //This method will be removed
         public static void save(object ked, String fileName)
         {
             FileStream fs = new FileStream(fileName, FileMode.Create, FileAccess.Write);
