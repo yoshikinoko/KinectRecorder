@@ -336,39 +336,25 @@ namespace SkeletalViewer
             if (recorder.recording)
             {
                 SeaquenceTime.Content = recorder.recordingTime;
-                if (current_rec_count < record_cycle_count)
-                {
+                long recordMS = record_min * 60 * 1000;
 
-                    if ((double)recorder.recordTimeElapsedMilliseconds / 1000.0 >= rec_cycle_duration)
-                    {
-                        recorder.stopRecording();
-                        playingStatus.Text = "REC:STOP";
-
-                        current_rec_count++;
-                    }
-                    if (current_rec_count < record_cycle_count) {
-                        playingStatus.Text = "RECORDING";
-
-                        recorder.startRecording();
-                    }
-                    
-
-                }
-                else
+                if (recorder.recordTimeElapsedMilliseconds > recordMS)
                 {
                     recorder.stopRecording();
                     playingStatus.Text = "REC:STOP";
 
-
                 }
+
             }
         }
 
         private void Slider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
+            int val = 240;
             Console.WriteLine("NEWVAL" + e.NewValue);
-            recordtimerdurationLabel.Content = ""+e.NewValue;
-            record_min = (int)(e.NewValue);
+            val = (int)(e.NewValue);
+            record_min = val;
+            recordtimerdurationLabel.Content = val.ToString();
         }
 
     }

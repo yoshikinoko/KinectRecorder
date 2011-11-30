@@ -7,11 +7,12 @@ namespace VirtualKinect
 {
     public class Recorder
     {
-
+        private KinectEventLineData lastEvent;
 
         private const String saveFileDirectory = "data";
         private const String _eventDataFolder = "_KinectEventData";
         private const string device_id = "kinect1";
+
         public String eventDataFolder
         {
             get
@@ -20,14 +21,11 @@ namespace VirtualKinect
             }
 
         }
-        private ArrayList depthFrameEvents;
-        private ArrayList imageFrameEvents;
-        private ArrayList skeletonFrameEvents;
 
-
+        private int sequenceNumber;
         private DateTime date;
-
-
+        private bool isStartRecording = false;
+        private string kinectEventIndexFileName;
         private long duration;
         private Stopwatch stopwatch;
         private bool _recording;
@@ -38,17 +36,14 @@ namespace VirtualKinect
         public Recorder()
         {
             _recording = false;
+
         }
 
         public void startRecording()
         {
             if (_recording)
                 return;
-
-            depthFrameEvents = new ArrayList();
-            imageFrameEvents = new ArrayList();
-            skeletonFrameEvents = new ArrayList();
-
+         
             date = DateTime.Now;
             makeSaveDir();
             stopwatch = new Stopwatch();
@@ -111,41 +106,12 @@ namespace VirtualKinect
         }
 
 
-        private int checkTotalEventSize()
-        {
-            return depthFrameEvents.Count + imageFrameEvents.Count + skeletonFrameEvents.Count;
-        }
-
-        private KinectEventData makeKinectEventData()
-        {
-
-
-            ArrayList saveDFE = depthFrameEvents;
-            ArrayList saveIFE = imageFrameEvents;
-            ArrayList saveSFE = skeletonFrameEvents;
-
-            depthFrameEvents = new ArrayList();
-            imageFrameEvents = new ArrayList();
-            skeletonFrameEvents = new ArrayList();
-
-
-
-            string[] dfe = (string[])saveDFE.ToArray(typeof(string));
-            string[] ife = (string[])saveIFE.ToArray(typeof(string));
-            string[] sfe = (string[])saveSFE.ToArray(typeof(string));
-
-            KinectEventData ked = new KinectEventData();
-
-            ked.set(device_id, date, this.duration,sfe,ife,dfe);
-
-            return ked;
-        }
-
 
 
         private void saveData()
         {
-            KinectEventData ked = makeKinectEventData();
+            KinectEventData ked = new KinectEventData();
+            ked.set(device_id, date, duration,sequenceNumber, kinectEventIndexFileName);
             String fileName = date.ToString(KinectEventData.dateFormatStyle) + KinectEventData.extension;
             String relativefileName = Path.Combine(eventDataFolder, fileName);
 
@@ -160,24 +126,52 @@ namespace VirtualKinect
             if (!_recording)
                 return;
             ImageFrameEventData ife = new ImageFrameEventData(e, stopwatch.ElapsedMilliseconds, eventDataFolder, device_id);
-            imageFrameEvents.Add(ife.saveFileName);
+            saveNextEvent(ife.time,ife.saveFileName, EventType.ImageFrameEvent);
         }
         public void addSkeletonFrameEvent(Microsoft.Research.Kinect.Nui.SkeletonFrameReadyEventArgs e)
         {
             if (!_recording)
                 return;
             SkeletonFrameEventData sfe = new SkeletonFrameEventData(e, stopwatch.ElapsedMilliseconds, eventDataFolder, device_id);
-
-            skeletonFrameEvents.Add(sfe.saveFileName);
+            saveNextEvent(sfe.time, sfe.saveFileName, EventType.SkeletonFrameEvent);
         }
         public void addDepthFrameEvent(Microsoft.Research.Kinect.Nui.ImageFrameReadyEventArgs e)
         {
             if (!_recording)
                 return;
             DepthFrameEventData dfe = new DepthFrameEventData(e, stopwatch.ElapsedMilliseconds, eventDataFolder, device_id);
-            depthFrameEvents.Add(dfe.saveFileName);
-            
+            saveNextEvent(dfe.time, dfe.saveFileName, EventType.DepthFrameEvent);
+     
         }
+        private void saveNextEvent(long time,string kinectEventFileName, EventType eventType)
+        {
+            if (!isStartRecording)
+            {
+                isStartRecording = true;     
+                lastEvent = new KinectEventLineData();
+                lastEvent.set(1, "", time, kinectEventFileName, eventType);
+                kinectEventIndexFileName = lastEvent.saveFileName;
+                sequenceNumber = 2;
+            }
+       
+            
+            KinectEventLineData nextEvent = new KinectEventLineData();
+            nextEvent.set(sequenceNumber,lastEvent.saveFileName, time , kinectEventFileName, eventType);
+            lastEvent.nextFileName = nextEvent.saveFileName;
+            sequenceNumber++;
+            
+            lastEvent.save(eventDataFolder);
+              
+
+            lastEvent = nextEvent;
+        }
+        private void saveFinilizedEvent()
+        {
+            lastEvent.finish();
+            lastEvent.save(eventDataFolder);
+        }
+
+
     }
 
 }

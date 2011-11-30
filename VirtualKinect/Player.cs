@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Diagnostics;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace VirtualKinect
 {
@@ -11,6 +12,9 @@ namespace VirtualKinect
         private EventTiming[] timeline;
         private int eventIndex;
         private bool _fileLoaded = false;
+        private KinectEventLineData kinectEventLine;
+        private object nextKinectEvent;
+        private string eventRootFolder;
         public bool fileLoaded
         {
             get { return _fileLoaded; }
@@ -18,9 +22,9 @@ namespace VirtualKinect
         }
         public void load(String fileName)
         {
-            String eventDataFolderRoot = System.IO.Path.GetDirectoryName(fileName);
+            eventRootFolder = System.IO.Path.GetDirectoryName(fileName);
             ked = IO.loadXML(fileName);
-            timeline = sortByTimeline(ked);
+            loadIndexEvent();
             _fileLoaded = true;
         }
         private readonly object lockObject = new object();
@@ -29,28 +33,49 @@ namespace VirtualKinect
         public bool stepPlay()
         {
 
-            if (eventIndex >= timeline.Length)
+            if (kinectEventLine.isEnd)
                 return false;
 
-            EventTiming et = timeline[eventIndex];
+            nextKinectEvent = kinectEventLine.loadKinectEvent(eventRootFolder);
 
-            switch (et.type)
-            {
-                case EventTiming.EventType.DepthFrameEvent:
-                    executeDepthFrameEvent(et.index);
-                    break;
-                case EventTiming.EventType.ImageFrameEvent:
-                    executeImageEvent(et.index);
-                    break;
-                case EventTiming.EventType.SkeletonFrameEvent:
-                    skeletonFrameEvent(et.index);
+            executeKinectEvent();
 
-                    break;
-            }
+            loadNextEvent();
+//            nextKinectEvent = kinectEventLine.loadKinectEvent(eventRootFolder);
 
-            eventIndex++;
             return true;
 
+        }
+        private void loadNextEvent()
+        {
+            KinectEventLineData nextEvent = kinectEventLine.loadNextEvent(eventRootFolder);
+            kinectEventLine = nextEvent;
+        }
+        private void loadPreviousEvent()
+        {
+            KinectEventLineData nextEvent = kinectEventLine.loadPreviousEvent(eventRootFolder);
+            kinectEventLine = nextEvent;
+
+        }
+
+        private void executeKinectEvent()
+        {
+            switch (kinectEventLine.kinectEventType)
+            {
+                case EventType.DepthFrameEvent:
+                    DepthFrameEventData dfe = (DepthFrameEventData)nextKinectEvent;
+                    executeDepthFrameEvent(dfe);
+                    break;
+                case EventType.ImageFrameEvent:
+                    ImageFrameEventData ife = (ImageFrameEventData)nextKinectEvent;
+
+                    executeImageEvent(ife);
+                    break;
+                case EventType.SkeletonFrameEvent:
+                    SkeletonFrameEventData sfe = (SkeletonFrameEventData)nextKinectEvent;
+                    executeSkeletonFrameEvent(sfe);
+                    break;
+            }
         }
 
         public void resetPlaying()
@@ -72,48 +97,122 @@ namespace VirtualKinect
 
         public void executeEvents(long currentTime)
         {
-            lock (lockObject)
-            {
-                if (eventIndex >= timeline.Length)
-                    return;
 
-                if (currentTime > duration)
-                    return;
-                while (timeline[eventIndex].time < currentTime)
-                {
-                    if (!stepPlay())
-                        break;
-                    if (eventIndex >= timeline.Length)
-                        break;
-                }
+            if (currentTime > duration)
+                return;
+            while (kinectEventLine.time < currentTime)
+            {
+
+                if (!stepPlay())
+                    break;
+                if (kinectEventLine.isEnd)
+                    break;
             }
+        }
+        public void setPlayerStatusByRatio(double ratio)
+        {
+            long time = (long)((double)duration * ratio);
+            setPlayerStatus(time);
+        }
+
+
+
+        public void setPlayerStatus(long currentTime)
+        {
+            if (currentTime > duration)
+                return;
+            loadIndexEvent();
+
+            while (kinectEventLine.time < currentTime)
+            {
+
+                loadNextEvent();
+            }
+            bool findSkeleton = false;
+            bool findDepth = false;
+            bool findImage = false;
+            SkeletonFrameEventData sfe = new SkeletonFrameEventData();
+            DepthFrameEventData dfe = new DepthFrameEventData();
+            ImageFrameEventData ife = new ImageFrameEventData();
+            while (!findSkeleton || !findImage || !findDepth)
+            {
+                switch (kinectEventLine.kinectEventType)
+                {
+                    case EventType.SkeletonFrameEvent:
+                        if (!findSkeleton)
+                        {
+                            findSkeleton = true;
+                            sfe = (SkeletonFrameEventData)kinectEventLine.loadKinectEvent(eventRootFolder);
+                        }
+                        break;
+                    case EventType.DepthFrameEvent:
+                        if (!findDepth)
+                        {
+                            findDepth = true;
+                            dfe = (DepthFrameEventData)kinectEventLine.loadKinectEvent(eventRootFolder);
+                        }
+                        break;
+                    case EventType.ImageFrameEvent:
+                        if (!findImage)
+                        {
+                            findImage = true;
+                            ife = (ImageFrameEventData)kinectEventLine.loadKinectEvent(eventRootFolder);
+                        }
+                        break;
+                    default:
+                        break;
+
+                }
+                if (kinectEventLine.sequenceNumber == 1)
+                {
+                    break;
+                }
+                loadPreviousEvent();
+            }
+            if (findSkeleton)
+                executeSkeletonFrameEvent(sfe);
+            if (findDepth)
+                executeDepthFrameEvent(dfe);
+            if (findImage)
+                executeImageEvent(ife);
+
+
+            return;
 
         }
+
+        private void loadIndexEvent()
+        {
+            kinectEventLine = ked.loadIndexEvent(eventRootFolder);
+
+        }
+
+
         public int InstanceIndex = 0;
 
         public event EventHandler<ImageFrameReadyEventArgs> DepthFrameReady;
         //public event EventHandler DepthFrameReady;
-        protected virtual void executeDepthFrameEvent(int i)
+        protected virtual void executeDepthFrameEvent(DepthFrameEventData dfe)
         {
             ImageFrameReadyEventArgs e = new ImageFrameReadyEventArgs();
-            e.ImageFrame = ked.depthFrameEvents[i].imageFrame;
+            e.ImageFrame = dfe.imageFrame;
             DepthFrameReady(this, e);
         }
         public event EventHandler<SkeletonFrameReadyEventArgs> SkeletonFrameReady;
         //public event EventHandler SkeletonFrameReady;
-        protected virtual void skeletonFrameEvent(int i)
+        protected virtual void executeSkeletonFrameEvent(SkeletonFrameEventData sfe)
         {
             SkeletonFrameReadyEventArgs e = new SkeletonFrameReadyEventArgs();
-            e.SkeletonFrame = ked.skeletonFrameEvents[i].SkeletonFrame;
+            e.SkeletonFrame = sfe.SkeletonFrame;
             SkeletonFrameReady(this, e);
         }
         public event EventHandler<ImageFrameReadyEventArgs> VideoFrameReady;
         //public event EventHandler VideoFrameReady;
-        protected virtual void executeImageEvent(int i)
+        protected virtual void executeImageEvent(ImageFrameEventData ife)
         {
             ImageFrameReadyEventArgs e = new ImageFrameReadyEventArgs();
             ImageFrame ei = new ImageFrame();
-            ei = ked.imageFrameEvents[i].imageFrame;
+            ei = ife.imageFrame;
             e.ImageFrame = ei;
             VideoFrameReady(this, e);
         }
@@ -122,52 +221,54 @@ namespace VirtualKinect
         public void Uninitialize() { }
 
         #region timeline
-        private static EventTiming[] sortByTimeline(KinectEventData ked)
-        {
-            //TODO: do we really need to compare and sort?
 
-            IComparer IFEC = new IFEComparer();
-            Array.Sort(ked.imageFrameEvents, IFEC);
 
-            IComparer SFEC = new SFEComparer();
-            Array.Sort(ked.skeletonFrameEvents, SFEC);
+        //private static EventTiming[] sortByTimeline(KinectEventData ked)
+        //{
+        //    //TODO: do we really need to compare and sort?
 
-            IComparer DFEC = new DFEComparer();
-            Array.Sort(ked.depthFrameEvents, DFEC);
+        //    IComparer IFEC = new IFEComparer();
+        //    Array.Sort(ked.imageFrameEvents, IFEC);
 
-            EventTiming[] result = new EventTiming[ked.imageFrameEvents.Length + ked.skeletonFrameEvents.Length + ked.depthFrameEvents.Length];
+        //    IComparer SFEC = new SFEComparer();
+        //    Array.Sort(ked.skeletonFrameEvents, SFEC);
 
-            int ii = 0;
-            int si = 0;
-            int di = 0;
-            int timeIndex = 0;
-            while (ii < ked.imageFrameEvents.Length || si < ked.skeletonFrameEvents.Length || di < ked.depthFrameEvents.Length)
-            {
+        //    IComparer DFEC = new DFEComparer();
+        //    Array.Sort(ked.depthFrameEvents, DFEC);
 
-                EventTiming.EventType nextEvent = fastestEvent(ked.depthFrameEvents, ked.imageFrameEvents, ked.skeletonFrameEvents, di, ii, si);
-                switch (nextEvent)
-                {
-                    case EventTiming.EventType.SkeletonFrameEvent:
-                        result[timeIndex] = new EventTiming(nextEvent, ked.skeletonFrameEvents[si].time, si);
-                        si++;
-                        break;
-                    case EventTiming.EventType.ImageFrameEvent:
-                        result[timeIndex] = new EventTiming(nextEvent, ked.imageFrameEvents[ii].time, ii);
-                        ii++;
-                        break;
-                    case EventTiming.EventType.DepthFrameEvent:
-                        result[timeIndex] = new EventTiming(nextEvent, ked.depthFrameEvents[di].time, di);
-                        di++;
-                        break;
-                    default:
-                        break;
-                }
-                timeIndex++;
-            }
+        //    EventTiming[] result = new EventTiming[ked.imageFrameEvents.Length + ked.skeletonFrameEvents.Length + ked.depthFrameEvents.Length];
 
-            return result;
+        //    int ii = 0;
+        //    int si = 0;
+        //    int di = 0;
+        //    int timeIndex = 0;
+        //    while (ii < ked.imageFrameEvents.Length || si < ked.skeletonFrameEvents.Length || di < ked.depthFrameEvents.Length)
+        //    {
 
-        }
+        //        EventTiming.EventType nextEvent = fastestEvent(ked.depthFrameEvents, ked.imageFrameEvents, ked.skeletonFrameEvents, di, ii, si);
+        //        switch (nextEvent)
+        //        {
+        //            case EventTiming.EventType.SkeletonFrameEvent:
+        //                result[timeIndex] = new EventTiming(nextEvent, ked.skeletonFrameEvents[si].time, si);
+        //                si++;
+        //                break;
+        //            case EventTiming.EventType.ImageFrameEvent:
+        //                result[timeIndex] = new EventTiming(nextEvent, ked.imageFrameEvents[ii].time, ii);
+        //                ii++;
+        //                break;
+        //            case EventTiming.EventType.DepthFrameEvent:
+        //                result[timeIndex] = new EventTiming(nextEvent, ked.depthFrameEvents[di].time, di);
+        //                di++;
+        //                break;
+        //            default:
+        //                break;
+        //        }
+        //        timeIndex++;
+        //    }
+
+        //    return result;
+
+        //}
         private static EventTiming.EventType fastestEvent(DepthFrameEventData[] dfes, ImageFrameEventData[] ifes, SkeletonFrameEventData[] sfes, int dfeIndex, int ifeIndex, int sfeIndex)
         {
             bool compDFE = dfeIndex < dfes.Length;

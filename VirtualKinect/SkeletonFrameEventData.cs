@@ -14,9 +14,9 @@ namespace VirtualKinect
         public SkeletonFrameEventData() { }
         [XmlAttribute]
         public long time=0;
-        [XmlAttribute]
+        [XmlIgnoreAttribute]
         public const string ImageFrameDataPrefix = "skeletonData";
-        [XmlAttribute]
+        [XmlIgnoreAttribute]
         public const string ImageFrameDataSuffix = ".xml";
         [XmlAttribute]
         public string device_id;

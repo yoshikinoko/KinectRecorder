@@ -26,10 +26,11 @@
                     <Label Content="00:00:00" Height="28" Name="SeaquenceTime" Width="70" />
                 </StackPanel>
                 <StackPanel Orientation="Horizontal">
-                    <Label Content="RECORD:Timer Min"  Height="28"  />
-                    <Label Content="10" Name="recordtimerdurationLabel" Height="28"  />
+                    <Label Content="RECORD Timer"  Height="28"  />
+                    <Label Content="240" Name="recordtimerdurationLabel" Height="28" Width="40"  />
 
                     <Slider Width="130" Value="240" Interval="1" ValueChanged="Slider_ValueChanged" Minimum="1" Maximum="300" />
+
                 </StackPanel>
             </StackPanel>
 

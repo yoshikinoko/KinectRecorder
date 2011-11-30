@@ -187,6 +187,7 @@ namespace SkeletalViewer
 
         void nui_DepthFrameReady(object sender, VirtualKinect.ImageFrameReadyEventArgs e)
         {
+            Console.WriteLine("DepthFrameReady");
             VirtualKinect.PlanarImage Image = e.ImageFrame.Image;
             byte[] convertedDepthFrame = convertDepthFrame(Image.Bits);
 
@@ -229,7 +230,7 @@ namespace SkeletalViewer
         void nui_SkeletonFrameReady(object sender, VirtualKinect.SkeletonFrameReadyEventArgs e)
         {
             //For VirtualKinect Recording
-
+            Console.WriteLine("SkeletonFrameReady");
             VirtualKinect.SkeletonFrame skeletonFrame = e.SkeletonFrame;
             int iSkeleton = 0;
             Brush[] brushes = new Brush[6];
@@ -275,6 +276,8 @@ namespace SkeletalViewer
 
         void nui_ColorFrameReady(object sender, VirtualKinect.ImageFrameReadyEventArgs e)
         {
+            Console.WriteLine("ColorFrameReady");
+
             VirtualKinect.PlanarImage Image = e.ImageFrame.Image;
 
             video.Source = BitmapSource.Create(
@@ -309,12 +312,19 @@ namespace SkeletalViewer
         {
             if (!player.fileLoaded)
                 return;
-            if (reachEndOfSequence)
-                player.resetPlaying();
-            if (!playingSequenceNow)
-                startSequencePlayingTimer();
-            else
-                stopSequencePlayingTimer();
+            double currentVal = sequencer.Value;
+          //  Console.WriteLine("val" + currentVal);
+
+            player.setPlayerStatusByRatio(currentVal );
+
+
+
+            //if (reachEndOfSequence)
+            //    player.resetPlaying();
+            //if (!playingSequenceNow)
+            //    startSequencePlayingTimer();
+            //else
+            //    stopSequencePlayingTimer();
         }
 
         private void startSequencePlayingTimer()
@@ -367,12 +377,43 @@ namespace SkeletalViewer
             TimeSpan span = new TimeSpan(0, 0, 0, 0, (int)currentPlayingSequenceTime);
             TimeSpan tsToShow = new TimeSpan(span.Hours, span.Minutes, span.Seconds);
             SeaquenceTime.Content = tsToShow.ToString();
-           
-       
 
         }
 
+
+
+
         private void SeaquencePosition_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+
+        }
+
+        private void stepPlay_Click(object sender, RoutedEventArgs e)
+        {
+            player.stepPlay();
+        }
+
+        private void sequencer_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+            double currentVal = e.NewValue;
+            if (player.fileLoaded)
+            {
+                int currentPlayingSequenceTime = (int)((double)(player.duration) * currentVal);
+
+                TimeSpan span = new TimeSpan(0, 0, 0, 0, (int)currentPlayingSequenceTime);
+                TimeSpan tsToShow = new TimeSpan(span.Hours, span.Minutes, span.Seconds);
+                SeaquenceTime.Content = tsToShow.ToString();
+            }
+
+        }
+        private void sqeuncer_touchup(TouchEventArgs e) {
+
+double currentVal =            sequencer.Value;            
+            Console.WriteLine("TOUCHUPval" + currentVal);
+
+        }
+
+        private void sequencer_TouchUp(object sender, TouchEventArgs e)
         {
 
         }
