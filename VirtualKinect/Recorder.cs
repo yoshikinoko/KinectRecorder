@@ -9,7 +9,8 @@ namespace VirtualKinect
     {
         private KinectEventLineData lastEvent;
 
-        private const String saveFileDirectory = "data";
+        public  const String saveFileDirectory = "data";
+        public  const String _eventDataDirectory = "events";
         private const String _eventDataFolder = "_KinectEventData";
         private const string device_id = "kinect1";
 
@@ -17,10 +18,18 @@ namespace VirtualKinect
         {
             get
             {
+                return Path.Combine(recordDirecotory, _eventDataDirectory);
+            }
+        }
+
+        public String recordDirecotory
+        {
+            get
+            {
                 return Path.Combine(saveFileDirectory, date.ToString(KinectEventData.dateFormatStyle) + _eventDataFolder);
             }
-
         }
+
 
         private int sequenceNumber;
         private DateTime date;
@@ -63,7 +72,9 @@ namespace VirtualKinect
         private void makeSaveDir()
         {
             mkDir(saveFileDirectory);
-            mkDir(this.eventDataFolder);
+            mkDir(recordDirecotory);
+
+            mkDir(eventDataFolder);
         }
         private static void mkDir(String dir)
         {
@@ -95,7 +106,7 @@ namespace VirtualKinect
             KinectEventData ked = new KinectEventData();
             ked.set(device_id, date, duration, sequenceNumber, kinectEventIndexFileName);
             String fileName = date.ToString(KinectEventData.dateFormatStyle) + KinectEventData.extension;
-            String relativefileName = Path.Combine(eventDataFolder, fileName);
+            String relativefileName = Path.Combine(recordDirecotory, fileName);
             makeSaveDir();
             IO.saveXML(ked, relativefileName);
         }
@@ -124,7 +135,7 @@ namespace VirtualKinect
             saveNextEvent(dfe.time, dfe.saveFileName, EventType.DepthFrameEvent);
 
         }
- 
+
         private void saveNextEvent(long time, string kinectEventFileName, EventType eventType)
         {
             if (!isStartRecording)
@@ -147,7 +158,7 @@ namespace VirtualKinect
 
             lastEvent = nextEvent;
         }
-  
+
         private void saveFinilizedEvent()
         {
             lastEvent.finish();

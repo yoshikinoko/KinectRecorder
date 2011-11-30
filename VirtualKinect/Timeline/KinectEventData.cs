@@ -34,6 +34,16 @@ namespace VirtualKinect
             string loadPath = Path.Combine(eventRootFolder, indexFileName);
             return (KinectEventLineData)IO.load(loadPath);
         }
+        public KinectEventLineData loadEventBySequenceNumber(string eventRootFolder, int index)
+        {
+            string loadFileName = KinectEventLineData.indexFileName(index);
+
+            string loadPath = Path.Combine(eventRootFolder, loadFileName);
+            return (KinectEventLineData)IO.load(loadPath);
+        }
+
+
+
         public void set(string device_id, DateTime date, long duration, int totalevents, string kinectEventIndexFileName)
         {
             this.device_id = device_id;

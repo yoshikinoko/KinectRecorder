@@ -15,12 +15,10 @@
             </StackPanel>
         </StackPanel>
         <StackPanel Orientation="Horizontal">
-            <StackPanel Orientation="Vertical">
-                <Viewbox Width="400" Margin="10" Stretch="None" VerticalAlignment="Stretch">
-                    <TextBox FontSize="72" Name="frameRate" Margin="10" Focusable="False" BorderThickness="0" Text="0 fps" TextAlignment="Right" HorizontalAlignment="Center" VerticalAlignment="Center" Width="250"/>
-                </Viewbox>
+            <StackPanel Orientation="Vertical" Width="400">
+
                 <StackPanel Orientation="Horizontal">
-                    <Label Content="00:00:00" Height="28" Name="SeaquenceTime" Width="70" /> 
+                    <Label Content="00:00:00" Height="28" Name="SeaquenceTime" Width="70" />
                     <Label Content="00:00:00" Height="28" Name="SeaquenceDurationTime" Width="70" />
                 </StackPanel>
                 <StackPanel Orientation="Horizontal">
@@ -28,14 +26,20 @@
                 </StackPanel>
                 <StackPanel Orientation="Horizontal">
                     <Button Content="Step" Height="23" Name="stepPlay" Width="75" Click="stepPlay_Click" />
-
                     <Button Content="Play" Height="23" Name="Button_Status" Width="75" Click="Button_play_Click" />
-                    <TextBlock Height="23" Width="300" Name="playingStatus" Text="File Not Loaded" />
+                    <TextBlock Height="23" Width="200" Name="playingStatus" Text="File Not Loaded" />
                 </StackPanel>
                 <StackPanel Orientation="Horizontal">
                     <TextBox Height="24" Name="playingFileName" Width="300" Text="path of virtual kinect file" />
                     <Button Content="File" Height="23" Name="Button_openFile" Width="40" Click="Button_openFile_Click" />
                 </StackPanel>
+                <StackPanel Orientation="Vertical" HorizontalAlignment="Left">
+                    <TextBlock Height="23" Width="380" Name="DepthFrameEventFileName" Text="File Not Loaded" />
+                    <TextBlock Height="23" Width="380" Name="ColorFrameEventFileName" Text="File Not Loaded" />
+                    <TextBlock Height="23" Width="380" Name="SkeletonFrameEventFileName" Text="File Not Loaded" />
+                </StackPanel>
+
+
             </StackPanel>
 
             <StackPanel>

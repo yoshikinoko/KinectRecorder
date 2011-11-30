@@ -71,37 +71,22 @@ namespace SkeletalViewer
 
             VirtualKinect.PlanarImage image = e.ImageFrame.Image;
             drawCore.nui_DepthFrameReady(image.Bits, image.Width, image.Height, depth);
-
+            DepthFrameEventFileName.Text = e.eventFileName;
 
         }
-
-        private Point getDisplayPosition(VirtualKinect.Joint joint)
-        {
-            float depthX, depthY;
-            Microsoft.Research.Kinect.Nui.Vector Position = joint.Position.NUI;
-            nui.SkeletonEngine.SkeletonToDepthImage(Position, out depthX, out depthY);
-            depthX = depthX * 320; //convert to 320, 240 space
-            depthY = depthY * 240; //convert to 320, 240 space
-            int colorX, colorY;
-            Microsoft.Research.Kinect.Nui.ImageViewArea iv = new Microsoft.Research.Kinect.Nui.ImageViewArea();
-            // only ImageResolution.Resolution640x480 is supported at this point
-            nui.NuiCamera.GetColorPixelCoordinatesFromDepthPixel(Microsoft.Research.Kinect.Nui.ImageResolution.Resolution640x480, iv, (int)depthX, (int)depthY, (short)0, out colorX, out colorY);
-
-            // map back to skeleton.Width & skeleton.Height
-            return new Point((int)(skeleton.Width * colorX / 640.0), (int)(skeleton.Height * colorY / 480));
-        }
-
-
 
         void nui_SkeletonFrameReady(object sender, VirtualKinect.SkeletonFrameReadyEventArgs e)
         {
             drawCore.nui_SkeletonFrameReadyV(e.SkeletonFrame, skeleton, nui);
+            SkeletonFrameEventFileName.Text = e.eventFileName;
         }
 
         void nui_ColorFrameReady(object sender, VirtualKinect.ImageFrameReadyEventArgs e)
         {
             VirtualKinect.PlanarImage image = e.ImageFrame.Image;
             drawCore.nui_ColorFrameReady(image.Bits, image.Width, image.Height, image.BytesPerPixel, video);
+            ColorFrameEventFileName.Text = e.eventFileName;   
+
         }
 
         private void Window_Closed(object sender, EventArgs e)

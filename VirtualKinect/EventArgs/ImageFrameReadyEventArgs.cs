@@ -8,5 +8,6 @@ namespace VirtualKinect
     public sealed class ImageFrameReadyEventArgs : EventArgs
     {
         public ImageFrame ImageFrame { get; set; }
+        public string eventFileName { get; set; }
     }
 }

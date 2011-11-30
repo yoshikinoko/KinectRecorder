@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Collections;
 using System.Diagnostics;
 using System.Threading;
@@ -20,7 +21,9 @@ namespace VirtualKinect
         }
         public void load(String fileName)
         {
-            eventRootFolder = System.IO.Path.GetDirectoryName(fileName);
+            eventRootFolder = Path.Combine(System.IO.Path.GetDirectoryName(fileName), Recorder._eventDataDirectory);
+
+
             ked = IO.loadXML(fileName);
             loadIndexEvent();
             _fileLoaded = true;
@@ -117,20 +120,50 @@ namespace VirtualKinect
         {
             if (currentTime > duration)
                 return;
-            searchNearestEvent(currentTime);
+            if (currentTime < 0)
+                return;
+            if (currentTime == 0)
+            {
+                loadIndexEvent();
+            }
+            else {
+                searchNearestEvent(currentTime);
+            }
+
             KinectEventLineData currentEventLine = kinectEventLine;
             executePreviousEvent();
             kinectEventLine = currentEventLine;
             return;
 
         }
+
+        private void loadKinectEventBySequenceIndex(int index)
+        {
+            kinectEventLine = ked.loadEventBySequenceNumber(eventRootFolder, index);
+        }
+
         private void searchNearestEvent(long currentTime)
         {
             loadIndexEvent();
 
-            while (kinectEventLine.time < currentTime)
+            int nearIndex = (int)((double)this.ked.totalEvents * ((double)currentTime / (double)this.ked.duration));
+
+            loadKinectEventBySequenceIndex(nearIndex);
+
+            if (kinectEventLine.time < currentTime)
             {
-                loadNextEvent();
+                while (kinectEventLine.time > currentTime)
+                {
+                    loadNextEvent();
+                }
+
+            }
+            else
+            {
+                while (kinectEventLine.time < currentTime)
+                {
+                    loadPreviousEvent();
+                }
             }
 
         }
@@ -198,6 +231,7 @@ namespace VirtualKinect
         {
             ImageFrameReadyEventArgs e = new ImageFrameReadyEventArgs();
             e.ImageFrame = dfe.imageFrame;
+            e.eventFileName = dfe.saveFileName;
             DepthFrameReady(this, e);
         }
 
@@ -206,15 +240,15 @@ namespace VirtualKinect
         {
             SkeletonFrameReadyEventArgs e = new SkeletonFrameReadyEventArgs();
             e.SkeletonFrame = sfe.SkeletonFrame;
+            e.eventFileName = sfe.saveFileName;
             SkeletonFrameReady(this, e);
         }
         public event EventHandler<ImageFrameReadyEventArgs> VideoFrameReady;
         protected virtual void executeImageEvent(ImageFrameEventData ife)
         {
             ImageFrameReadyEventArgs e = new ImageFrameReadyEventArgs();
-            ImageFrame ei = new ImageFrame();
-            ei = ife.imageFrame;
-            e.ImageFrame = ei;
+            e.ImageFrame = ife.imageFrame;
+            e.eventFileName = ife.saveFileName;
             VideoFrameReady(this, e);
         }
 

@@ -8,5 +8,7 @@ namespace VirtualKinect
     public sealed class SkeletonFrameReadyEventArgs : EventArgs
     {
         public SkeletonFrame SkeletonFrame { get; set; }
+        public string eventFileName { get; set; }
+
     }
 }

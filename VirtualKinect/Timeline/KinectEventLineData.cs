@@ -25,6 +25,9 @@ namespace VirtualKinect
                 return Prefix + sequenceNumber + Suffix;
             }
         }
+        public static string indexFileName(int sequenceNumber){
+            return Prefix + sequenceNumber + Suffix;
+        }
      
      
 
