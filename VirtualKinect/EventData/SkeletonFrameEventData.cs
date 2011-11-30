@@ -2,6 +2,7 @@
 using System.Xml;
 using System.Xml.Serialization;
 using System.IO;
+using System.Threading.Tasks;
 //using Microsoft.Research.Kinect;
 
 namespace VirtualKinect
@@ -13,7 +14,7 @@ namespace VirtualKinect
 
         public SkeletonFrameEventData() { }
         [XmlAttribute]
-        public long time=0;
+        public long time = 0;
         [XmlIgnoreAttribute]
         public const string ImageFrameDataPrefix = "skeletonData";
         [XmlIgnoreAttribute]
@@ -47,10 +48,14 @@ namespace VirtualKinect
             this.time = time;
             string tmpEventFileName = saveFilePath(saveFolder);
             //TODO: Push to network resource
-            IO.saveXMLSerialTask(this, tmpEventFileName);
-       
+            Task t = Task.Factory.StartNew(() =>
+            {
+                IO.saveXMLSerialTask(this, tmpEventFileName);
+
+            });
+
             //Push to network
-            //   IO.saveXMLSerialTask(this, tmpEventFileName);
+
         }
     }
 }

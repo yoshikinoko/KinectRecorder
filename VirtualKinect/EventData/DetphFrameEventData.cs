@@ -2,6 +2,8 @@
 using System.Xml;
 using System.Xml.Serialization;
 using System.IO;
+using System.Threading.Tasks;
+
 
 namespace VirtualKinect
 {
@@ -52,10 +54,15 @@ namespace VirtualKinect
             String imageRawFileName = rawDepthFrameDataPrefix + time + rawDepthFrameDataSuffix;
             this.imageFrame.Image.rawFileName = imageRawFileName;
             this.imageFrame.Image.useCompressedImage = false;
-            this.imageFrame.Image.saveImage(saveFolder);
             string tmpEventFileName = saveFilePath(saveFolder);
+
             //TODO: Push to network resource
-            IO.saveXMLSerialTask(this, tmpEventFileName);
+            Task t = Task.Factory.StartNew(() =>
+            {
+                this.imageFrame.Image.saveImage(saveFolder);
+                IO.saveXMLSerialTask(this, tmpEventFileName);
+            });
+
         }
     }
 }
