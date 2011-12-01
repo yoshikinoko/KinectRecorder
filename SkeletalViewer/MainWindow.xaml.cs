@@ -75,8 +75,7 @@ namespace SkeletalViewer
         void nui_DepthFrameReady(object sender, ImageFrameReadyEventArgs e)
         {
             PlanarImage image = e.ImageFrame.Image;
-            drawCore.nui_ColorFrameReady(image.Bits, image.Width, image.Height, image.BytesPerPixel, video);
-
+            drawCore.nui_DepthFrameReady(image.Bits, image.Width, image.Height, depth);
             drawCore.drawFPS(frameRate);
         }
 
