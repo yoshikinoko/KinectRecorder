@@ -10,17 +10,10 @@ namespace VirtualKinect
         private KinectEventLineData lastEvent;
 
         public  const String saveFileDirectory = "data";
-        public  const String _eventDataDirectory = "events";
         private const String _eventDataFolder = "_KinectEventData";
         private const string device_id = "kinect1";
 
-        public String eventDataFolder
-        {
-            get
-            {
-                return Path.Combine(recordDirecotory, _eventDataDirectory);
-            }
-        }
+
 
         public String recordDirecotory
         {
@@ -74,7 +67,7 @@ namespace VirtualKinect
             mkDir(saveFileDirectory);
             mkDir(recordDirecotory);
 
-            mkDir(eventDataFolder);
+           mkDir(Path.Combine(recordDirecotory,KinectEventData.eventDataDirectory));
         }
         private static void mkDir(String dir)
         {
@@ -115,7 +108,7 @@ namespace VirtualKinect
         {
             if (!_recording)
                 return;
-            ImageFrameEventData ife = new ImageFrameEventData(e, stopwatch.ElapsedMilliseconds, eventDataFolder, device_id);
+            ImageFrameEventData ife = new ImageFrameEventData(e, stopwatch.ElapsedMilliseconds, recordDirecotory, device_id);
             saveNextEvent(ife.time, ife.saveFileName, EventType.ImageFrameEvent);
         }
 
@@ -123,7 +116,7 @@ namespace VirtualKinect
         {
             if (!_recording)
                 return;
-            SkeletonFrameEventData sfe = new SkeletonFrameEventData(e, stopwatch.ElapsedMilliseconds, eventDataFolder, device_id);
+            SkeletonFrameEventData sfe = new SkeletonFrameEventData(e, stopwatch.ElapsedMilliseconds, recordDirecotory, device_id);
             saveNextEvent(sfe.time, sfe.saveFileName, EventType.SkeletonFrameEvent);
         }
 
@@ -131,7 +124,7 @@ namespace VirtualKinect
         {
             if (!_recording)
                 return;
-            DepthFrameEventData dfe = new DepthFrameEventData(e, stopwatch.ElapsedMilliseconds, eventDataFolder, device_id);
+            DepthFrameEventData dfe = new DepthFrameEventData(e, stopwatch.ElapsedMilliseconds, recordDirecotory, device_id);
             saveNextEvent(dfe.time, dfe.saveFileName, EventType.DepthFrameEvent);
 
         }
@@ -153,7 +146,7 @@ namespace VirtualKinect
             lastEvent.nextFileName = nextEvent.saveFileName;
             sequenceNumber++;
 
-            lastEvent.save(eventDataFolder);
+            lastEvent.save(recordDirecotory);
 
 
             lastEvent = nextEvent;
@@ -162,7 +155,7 @@ namespace VirtualKinect
         private void saveFinilizedEvent()
         {
             lastEvent.finish();
-            lastEvent.save(eventDataFolder);
+            lastEvent.save(recordDirecotory);
         }
 
     }

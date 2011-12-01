@@ -21,10 +21,10 @@ namespace VirtualKinect
         }
         public void load(String fileName)
         {
-            eventRootFolder = Path.Combine(System.IO.Path.GetDirectoryName(fileName), Recorder._eventDataDirectory);
 
-
+            eventRootFolder = System.IO.Path.GetDirectoryName(fileName);
             ked = IO.loadXML(fileName);
+
             loadIndexEvent();
             _fileLoaded = true;
         }

@@ -39,7 +39,9 @@ namespace VirtualKinect
         }
         private string saveFilePath(string saveFolder)
         {
-            return Path.Combine(saveFolder, saveFileName);
+            String tmp = Path.Combine(saveFolder,KinectEventData.eventDataDirectory);
+
+            return Path.Combine(tmp, saveFileName);
 
         }
 
@@ -54,12 +56,13 @@ namespace VirtualKinect
             String imageRawFileName = rawDepthFrameDataPrefix + time + rawDepthFrameDataSuffix;
             this.imageFrame.Image.rawFileName = imageRawFileName;
             this.imageFrame.Image.useCompressedImage = false;
+            string imgFileDirectory = Path.Combine(saveFolder, KinectEventData.eventDataDirectory);
             string tmpEventFileName = saveFilePath(saveFolder);
 
             //TODO: Push to network resource
             Task t = Task.Factory.StartNew(() =>
             {
-                this.imageFrame.Image.saveImage(saveFolder);
+                this.imageFrame.Image.saveImage(imgFileDirectory);
                 IO.saveXMLSerialTask(this, tmpEventFileName);
             });
 

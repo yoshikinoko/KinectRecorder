@@ -59,7 +59,7 @@ namespace VirtualKinect
         }
         public object loadKinectEvent(string eventRootFolder){
         
-            string loadPath = Path.Combine(eventRootFolder,kinectEventName);
+            string loadPath = Path.Combine(loadDir(eventRootFolder),kinectEventName);
             object result = new object();
             switch (kinectEventType)
             {
@@ -83,15 +83,21 @@ namespace VirtualKinect
             return result;
             
         }
+        private String loadDir(String eventRootFolder)
+        {
+            return Path.Combine(eventRootFolder, KinectEventData.eventDataDirectory);
+         
+        }
+
 
         public KinectEventLineData loadNextEvent(string eventRootFolder)
         {
-            string loadPath = Path.Combine(eventRootFolder, nextFileName);
+            string loadPath = Path.Combine(loadDir(eventRootFolder), nextFileName);
             return (KinectEventLineData)IO.load(loadPath);
         }
         public KinectEventLineData loadPreviousEvent(string eventRootFolder)
         {
-            string loadPath = Path.Combine(eventRootFolder, previousFileName);
+            string loadPath = Path.Combine(loadDir(eventRootFolder), previousFileName);
             return (KinectEventLineData)IO.load(loadPath);
         }
 
@@ -102,7 +108,9 @@ namespace VirtualKinect
         }
         public void save(string eventDataFolder)
         {
-            string savePath = Path.Combine(eventDataFolder, saveFileName);
+
+            string savePath = Path.Combine(loadDir(eventDataFolder), saveFileName);
+
             IO.save(this, savePath);
 
         }

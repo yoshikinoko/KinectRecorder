@@ -28,17 +28,22 @@ namespace VirtualKinect
         public string indexFileName;
         [XmlAttribute]
         public int totalEvents;
+        [XmlAttribute]
+        public const String eventDataDirectory = "events";
+
 
         public KinectEventLineData loadIndexEvent(string eventRootFolder)
         {
-            string loadPath = Path.Combine(eventRootFolder, indexFileName);
+            String epath = Path.Combine(eventRootFolder, eventDataDirectory);
+            string loadPath = Path.Combine(epath, indexFileName);
             return (KinectEventLineData)IO.load(loadPath);
         }
         public KinectEventLineData loadEventBySequenceNumber(string eventRootFolder, int index)
         {
             string loadFileName = KinectEventLineData.indexFileName(index);
+            String epath = Path.Combine(eventRootFolder, eventDataDirectory);
 
-            string loadPath = Path.Combine(eventRootFolder, loadFileName);
+            string loadPath = Path.Combine(epath, loadFileName);
             return (KinectEventLineData)IO.load(loadPath);
         }
 

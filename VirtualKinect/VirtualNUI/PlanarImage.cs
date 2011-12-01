@@ -25,7 +25,7 @@ namespace VirtualKinect
             }
             else
             {
-                String openFileName = Path.Combine(eventDataRootFolder, rawFileName);
+                String openFileName = Path.Combine(eventDataRootFolder,KinectEventData.eventDataDirectory ,rawFileName);
 
                 if (useCompressedImage)
                 {

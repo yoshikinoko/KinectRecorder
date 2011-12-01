@@ -37,7 +37,9 @@ namespace VirtualKinect
         }
         private string saveFilePath(string saveFolder)
         {
-            return Path.Combine(saveFolder, saveFileName);
+            String tmp = Path.Combine(saveFolder, KinectEventData.eventDataDirectory);
+
+            return Path.Combine(tmp, saveFileName);
 
         }
         public SkeletonFrameEventData(Microsoft.Research.Kinect.Nui.SkeletonFrameReadyEventArgs e, long time, string saveFolder, string devide_id)
@@ -47,6 +49,7 @@ namespace VirtualKinect
             this.SkeletonFrame.NUI = e.SkeletonFrame;
             this.time = time;
             string tmpEventFileName = saveFilePath(saveFolder);
+
             //TODO: Push to network resource
             Task t = Task.Factory.StartNew(() =>
             {
